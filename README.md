@@ -1,6 +1,8 @@
 # testprefix
 
-This is an experiment on test function discovery in C.
+Test function discovery in C.
+
+![Demo](/doc/demo.gif?raw=true)
 
 TODO:
 - Improve this readme;
