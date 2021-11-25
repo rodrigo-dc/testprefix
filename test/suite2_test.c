@@ -1,7 +1,7 @@
 // Copyright 2021 Rodrigo Dias Correa. See LICENSE.
 
 #include "testprefix.h"
-#include <stdio.h>
+#include <string.h>
 
 int test_suite2_nok_string_comparison(void *t)
 {

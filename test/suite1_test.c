@@ -1,6 +1,6 @@
 // Copyright 2021 Rodrigo Dias Correa. See LICENSE.
 #include "testprefix.h"
-#include <stdio.h>
+#include <string.h>
 
 int test_suite1_ok_integer_comparison(void *t)
 {

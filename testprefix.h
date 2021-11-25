@@ -3,7 +3,7 @@
 #ifndef TESTPREFIX_H_
 #define TESTPREFIX_H_
 
-#include <string.h>
+#include <stdio.h>
 #include <setjmp.h>
 
 #define TP_MAX_MSG_SIZE 255
