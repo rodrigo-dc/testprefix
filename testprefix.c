@@ -459,7 +459,7 @@ static int tap_finish_cb(struct test_reporter *self)
 static void setup_tap_reporter(const char *path, struct tap_private *priv, struct test_reporter *r)
 {
     memset(r, 0, sizeof(struct test_reporter));
-    memset(r, 0, sizeof(struct tap_private));
+    memset(priv, 0, sizeof(struct tap_private));
 
     r->init_cb = tap_init_cb;
     r->test_begin_cb = tap_test_begin_cb;

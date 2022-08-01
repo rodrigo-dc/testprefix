@@ -17,7 +17,7 @@ int test_suite1_nok_integer_comparison(void *t)
 int test_suite1_nok_mem_comparison(void *t)
 {
     TP_ASSERT(t, memcmp("asdf", __FUNCTION__,
-                     sizeof(__FUNCTION__)) == 0);
+                     sizeof("asdf")) == 0);
     return 0;
 }
 

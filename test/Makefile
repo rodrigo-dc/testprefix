@@ -3,7 +3,7 @@
 CC       ?= $(CROSS_COMPILE)gcc
 AR       ?= $(CROSS_COMPILE)ar
 CPPFLAGS += -I..
-CFLAGS   += -std=gnu99 -Wall -Wextra -W -Werror -O0 -g
+CFLAGS   += -std=gnu99 -Wall -Wextra -W -Werror -O1 -g -D_FORTIFY_SOURCE=2
 LDFLAGS  +=
 
 VALGRIND ?= valgrind
