@@ -388,8 +388,8 @@ static void setup_console_reporter(struct console_private *priv, struct test_rep
 // TAP Reporter
 //
 struct tap_private {
-    char path[STRING_SIZE_MAX];
     int fd;
+    char path[STRING_SIZE_MAX];
 };
 
 static int tap_init_cb(struct test_reporter *self, int test_count)
@@ -479,14 +479,14 @@ int main(int argc, char *argv[]);
 typedef int (*testfunc)(void *);
 
 struct test_info {
-    char name[STRING_SIZE_MAX];
     testfunc func;
+    char name[STRING_SIZE_MAX];
 };
 
 static int compar_test_info(const void* a, const void *b)
 {
-    struct test_info *a_ti = (struct test_info*)a;
-    struct test_info *b_ti = (struct test_info*)b;
+    const struct test_info *a_ti = (const struct test_info*)a;
+    const struct test_info *b_ti = (const struct test_info*)b;
 
     return strcmp(a_ti->name, b_ti->name);
 }
@@ -612,9 +612,9 @@ static int find_tests(int fd, const char *prefix, struct test_info **tests)
 // CLI arguments
 //
 struct cli_args {
-    char prefix[STRING_SIZE_MAX];
     bool print_usage;
     bool print_test_names;
+    char prefix[STRING_SIZE_MAX];
     char output_path[STRING_SIZE_MAX];
 };
 
