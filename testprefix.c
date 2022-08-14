@@ -535,6 +535,7 @@ static int read_symbols(int fd,
         if (!count_only) {
             tests[test_count].func = (testfunc)sym.st_value;
             strncpy(tests[test_count].name, &str_table.strings[str_index], STRING_SIZE_MAX);
+            tests[test_count].name[STRING_SIZE_MAX - 1] = '\0';
         }
         test_count++;
     }
