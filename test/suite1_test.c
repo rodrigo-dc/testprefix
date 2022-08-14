@@ -17,15 +17,15 @@ int test_suite1_nok_integer_comparison(void *t)
 
 int test_suite1_nok_mem_comparison(void *t)
 {
-    TP_ASSERT(t, memcmp("asdf", __FUNCTION__,
+    TP_ASSERT(t, memcmp("asdf", __func__,
                      sizeof("asdf")) == 0);
     return 0;
 }
 
 int test_suite1_ok_mem_comparison(void *t)
 {
-    TP_ASSERT(t, memcmp("test_suite1_ok_mem_comparison", __FUNCTION__,
-                     sizeof(__FUNCTION__)) == 0);
+    TP_ASSERT(t, memcmp("test_suite1_ok_mem_comparison", __func__,
+                     sizeof(__func__)) == 0);
     return 0;
 }
 

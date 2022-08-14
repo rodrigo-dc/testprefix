@@ -5,13 +5,13 @@
 
 int test_suite2_nok_string_comparison(void *t)
 {
-    TP_ASSERT(t, strcmp("asdf", __FUNCTION__) == 0);
+    TP_ASSERT(t, strcmp("asdf", __func__) == 0);
     return 0;
 }
 
 int test_suite2_ok_string_comparison(void *t)
 {
     TP_ASSERT(t, strcmp("test_suite2_ok_string_comparison",
-                         __FUNCTION__) == 0);
+                         __func__) == 0);
     return 0;
 }

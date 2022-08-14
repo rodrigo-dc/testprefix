@@ -526,7 +526,7 @@ static int read_symbols(int fd,
                 if (strcmp(&str_table.strings[str_index], "main") == 0) {
                     // To compensate the relocation in a Position Independent Executable,
                     // we calculated an address offset based on 'main'.
-                    addr_offset = (unsigned long)(main - sym.st_value);
+                    addr_offset = (unsigned long)main - sym.st_value;
                     offset_found = true;
                 }
             }
@@ -541,7 +541,8 @@ static int read_symbols(int fd,
     }
     if (!count_only && addr_offset != 0) {
         for (int i = 0; i < test_count; i++) {
-            tests[i].func += addr_offset;
+            unsigned long new_addr = addr_offset + (unsigned long)tests[i].func;
+            tests[i].func = (testfunc)new_addr;
         }
     }
 
