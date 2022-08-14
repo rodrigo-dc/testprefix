@@ -38,6 +38,16 @@ The test fails in case of any assertion failure.
 You can call `TP_ASSERT` from the inside of a setup-like function. You only need to
 pass the `void *` parameter received by the test function.
 
+#### Releasing resources
+
+If ``TP_ASSERT`` fails, the test is aborted. To avoid resource leaks, ``TP_ASSERT``
+takes optional parameters that can be used to deallocate memory, close files,
+or even print additional information.
+
+```c
+TP_ASSERT(t, 1 == 2, free(ptr), printf("Released"));
+```
+
 ### Run
 
 Copy `testprefix.c` and `testprefix.h` to your project. Build a test application from
