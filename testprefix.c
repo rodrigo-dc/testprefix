@@ -421,6 +421,15 @@ static int tap_test_begin_cb(int index,
     return 0;
 }
 
+static void replace_single_quotes(char *str)
+{
+	while (*(str++) != '\0') {
+		if (*str == '\'') {
+			*str = '`';
+		}
+	}
+}
+
 static int tap_test_end_cb(int index,
                            const char *name,
                            const struct test_result *result,
@@ -436,8 +445,13 @@ static int tap_test_end_cb(int index,
     if (result->status == TEST_SKIPPED) {
         dprintf(tp->fd, " # skipped");
     } else if (result->status == TEST_FAILED) {
+        char yaml_msg[sizeof(result->err_msg)] = {0};
+
+	strncpy(yaml_msg, result->err_msg, sizeof(yaml_msg) - 1);
+        replace_single_quotes(yaml_msg);
+
         dprintf(tp->fd, "\n  ---\n");
-        dprintf(tp->fd, "  message: \"%s\"\n", result->err_msg);
+        dprintf(tp->fd, "  message: '%s'\n", yaml_msg);
         dprintf(tp->fd, "  ...");
     }
     dprintf(tp->fd, "\n");
