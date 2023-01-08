@@ -42,7 +42,7 @@ void setup(void *t)
     TP_ASSERT(t, 1 == 4);
 }
 
-int test_suite1_com_setup(void *t)
+int test_suite1_with_setup(void *t)
 {
     setup(t);
     TP_ASSERT(t, 1);
