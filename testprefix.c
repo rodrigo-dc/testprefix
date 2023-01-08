@@ -24,8 +24,10 @@
 #if __SIZEOF_POINTER__ == 8
     #define ELF64 1
     #define EXPECTED_ELF_CLASS 2 // ELF64
+    #define ELF_UINT uint64_t
 #else
     #define EXPECTED_ELF_CLASS 1 // ELF32
+    #define ELF_UINT uint32_t
 #endif
 
 #define ELF_MAGIC "\x7f""ELF"
@@ -129,7 +131,7 @@ static int read_elf_header(int fd, struct elf_header *header)
     lseek(fd, ELF_CLASS_OFFSET, SEEK_SET);
 
     char elf_class = 0;
-    int ret = read(fd, &elf_class, 1);
+    ssize_t ret = read(fd, &elf_class, 1);
     if (ret != 1) {
         dprintf(STDERR_FILENO, "Error. Could not read ELF class.\n");
         return -1;
@@ -143,9 +145,9 @@ static int read_elf_header(int fd, struct elf_header *header)
 
     lseek(fd, 0, SEEK_SET);
 
-    int elf_header_size = (int)sizeof(struct elf_header);
+    size_t elf_header_size = sizeof(struct elf_header);
     ret = read(fd, header, elf_header_size);
-    if (ret != elf_header_size) {
+    if (ret < 0 || (size_t)ret != elf_header_size) {
         dprintf(STDERR_FILENO, "Error. Could not read ELF header.\n");
         return -1;
     }
@@ -172,9 +174,9 @@ static int read_string_table(int fd,
         return -1;
     }
 
-    lseek(fd, sec_header->sh_offset, SEEK_SET);
-    int ret = read(fd, table->strings, table->size);
-    if (ret != (int)table->size) {
+    lseek(fd, (off_t)sec_header->sh_offset, SEEK_SET);
+    ssize_t ret = read(fd, table->strings, table->size);
+    if (ret < 0 || (size_t)ret != table->size) {
         dprintf(STDERR_FILENO, "Error. Could not read string section data.");
         free(table->strings);
         table->strings = NULL;
@@ -209,11 +211,11 @@ static int read_sec_header_at_index(int fd,
         return -1;
     }
 
-    off_t sec_header_off = header->e_shoff + (index * header->e_shentsize);
+    off_t sec_header_off = (off_t)(header->e_shoff + ((long)index * header->e_shentsize));
     lseek(fd, sec_header_off, SEEK_SET);
 
-    int ret = read(fd, sec_header, header->e_shentsize);
-    if (ret != header->e_shentsize) {
+    ssize_t ret = read(fd, sec_header, header->e_shentsize);
+    if (ret < 0 || ret != header->e_shentsize) {
         dprintf(STDERR_FILENO, "Error. Could not read section header.\n");
         return -1;
     }
@@ -515,14 +517,14 @@ static int read_symbols(int fd,
     int test_count = 0;
     unsigned long addr_offset = 0;
     bool offset_found = false;
-    int symbol_count = symtab_header->sh_size / symtab_header->sh_entsize;
+    ELF_UINT symbol_count = symtab_header->sh_size / symtab_header->sh_entsize;
 
-    lseek(fd, symtab_header->sh_offset, SEEK_SET);
+    lseek(fd, (off_t)symtab_header->sh_offset, SEEK_SET);
 
-    for (int i = 0; i < symbol_count; i++) {
+    for (ELF_UINT i = 0; i < symbol_count; i++) {
         struct elf_sym sym;
-        int ret = read(fd, &sym, symtab_header->sh_entsize);
-        if (ret != (int)symtab_header->sh_entsize) {
+        ssize_t ret = read(fd, &sym, symtab_header->sh_entsize);
+        if (ret < 0 || (ELF_UINT)ret != symtab_header->sh_entsize) {
             dprintf(STDERR_FILENO, "Error. Could not read symbol.");
             break;
         }
