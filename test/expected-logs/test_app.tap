@@ -1,0 +1,26 @@
+TAP version 13
+1..9
+not ok 1 test_suite1_nok_integer_comparison
+  ---
+  message: 'suite1_test.c:14: assertion failed: `1 == 2`'
+  ...
+not ok 2 test_suite1_nok_mem_comparison
+  ---
+  message: 'suite1_test.c:20: assertion failed: `memcmp("asdf", __func__, sizeof("asdf")) == 0`'
+  ...
+not ok 3 test_suite1_nok_with_free
+  ---
+  message: 'suite1_test.c:36: assertion failed: `1 == 2`'
+  ...
+ok 4 test_suite1_ok_integer_comparison
+ok 5 test_suite1_ok_mem_comparison
+ok 6 test_suite1_skip # skipped
+not ok 7 test_suite1_with_setup
+  ---
+  message: 'suite1_test.c:42: assertion failed: `1 == 4`'
+  ...
+not ok 8 test_suite2_nok_string_comparison
+  ---
+  message: 'suite2_test.c:8: assertion failed: `strcmp("asdf", __func__) == 0`'
+  ...
+ok 9 test_suite2_ok_string_comparison

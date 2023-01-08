@@ -1,0 +1,23 @@
+[ TEST ] 0 test_suite1_nok_integer_comparison
+[ FAIL ] 0 |  | suite1_test.c:14: assertion failed: '1 == 2'
+[ TEST ] 1 test_suite1_nok_mem_comparison
+[ FAIL ] 1 |  | suite1_test.c:20: assertion failed: 'memcmp("asdf", __func__, sizeof("asdf")) == 0'
+[ TEST ] 2 test_suite1_nok_with_free
+Released[ FAIL ] 2 |  | suite1_test.c:36: assertion failed: '1 == 2'
+[ TEST ] 3 test_suite1_ok_integer_comparison
+[ PASS ] 3 | 
+[ TEST ] 4 test_suite1_ok_mem_comparison
+[ PASS ] 4 | 
+[ TEST ] 5 test_suite1_skip
+[ SKIP ] 5 | 
+[ TEST ] 6 test_suite1_with_setup
+[ FAIL ] 6 |  | suite1_test.c:42: assertion failed: '1 == 4'
+[ TEST ] 7 test_suite2_nok_string_comparison
+[ FAIL ] 7 |  | suite2_test.c:8: assertion failed: 'strcmp("asdf", __func__) == 0'
+[ TEST ] 8 test_suite2_ok_string_comparison
+[ PASS ] 8 | 
+
+  Total: 9
+ Passed: 3
+ Failed: 5
+Skipped: 1
