@@ -687,6 +687,7 @@ static int run_tests(int test_count, struct test_info *tests, struct test_report
         return -1;
     }
 
+    int ret_code = 0;
     for (int i = 0; i < test_count; i++) {
         struct test_result result = {0};
         struct test_context ctx = {
@@ -705,13 +706,14 @@ static int run_tests(int test_count, struct test_info *tests, struct test_report
             }
         } else {
             result.status = TEST_FAILED;
+	    ret_code = -1;
         }
         clock_gettime(CLOCK_REALTIME, &result.end);
         r->test_end_cb(i, tests[i].name, &result, r->private);
     }
     r->finish_cb(r);
 
-    return 0;
+    return ret_code;
 }
 
 static void print_test_names(int test_count, struct test_info *tests)
@@ -748,6 +750,7 @@ int main(int argc, char *argv[])
 
     if (args.print_test_names) {
         print_test_names(test_count, tests);
+	ret = 0;
     } else {
         struct test_reporter reporter;
         struct console_private console_priv;

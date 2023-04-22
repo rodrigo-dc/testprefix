@@ -1,7 +1,0 @@
-[ TEST ] 0 test_suite1_with_setup
-[ FAIL ] 0 |  | suite1_test.c:42: assertion failed: '1 == 4'
-
-  Total: 1
- Passed: 0
- Failed: 1
-Skipped: 0

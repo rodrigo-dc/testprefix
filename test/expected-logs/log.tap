@@ -1,0 +1,23 @@
+TAP version 13
+1..9
+not ok 1 test_suite1_nok_in_setup
+  ---
+  message: 'test.c:54: assertion failed: `1 == 4`'
+  ...
+not ok 2 test_suite1_nok_integer_comparison
+  ---
+  message: 'test.c:14: assertion failed: `1 == 2`'
+  ...
+not ok 3 test_suite1_nok_mem_comparison
+  ---
+  message: 'test.c:20: assertion failed: `memcmp("abcd", "efghi", sizeof("abcd")) == 0`'
+  ...
+not ok 4 test_suite1_nok_with_free
+  ---
+  message: 'test.c:35: assertion failed: `1 == 2`'
+  ...
+ok 5 test_suite1_ok_integer_comparison
+ok 6 test_suite1_ok_mem_comparison
+ok 7 test_suite1_ok_with_free
+ok 8 test_suite1_ok_with_setup
+ok 9 test_suite1_skip # skipped

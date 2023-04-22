@@ -1,0 +1,23 @@
+[ TEST ] 0 test_suite1_nok_in_setup
+[ FAIL ] 0 |  | test.c:54: assertion failed: '1 == 4'
+[ TEST ] 1 test_suite1_nok_integer_comparison
+[ FAIL ] 1 |  | test.c:14: assertion failed: '1 == 2'
+[ TEST ] 2 test_suite1_nok_mem_comparison
+[ FAIL ] 2 |  | test.c:20: assertion failed: 'memcmp("abcd", "efghi", sizeof("abcd")) == 0'
+[ TEST ] 3 test_suite1_nok_with_free
+Released[ FAIL ] 3 |  | test.c:35: assertion failed: '1 == 2'
+[ TEST ] 4 test_suite1_ok_integer_comparison
+[ PASS ] 4 | 
+[ TEST ] 5 test_suite1_ok_mem_comparison
+[ PASS ] 5 | 
+[ TEST ] 6 test_suite1_ok_with_free
+[ PASS ] 6 | 
+[ TEST ] 7 test_suite1_ok_with_setup
+[ PASS ] 7 | 
+[ TEST ] 8 test_suite1_skip
+[ SKIP ] 8 | 
+
+  Total: 9
+ Passed: 4
+ Failed: 4
+Skipped: 1
