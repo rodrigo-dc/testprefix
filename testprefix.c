@@ -1,4 +1,5 @@
 // Copyright 2021 Rodrigo Dias Correa. See LICENSE.
+// Version 1.0
 
 #include "testprefix.h"
 
