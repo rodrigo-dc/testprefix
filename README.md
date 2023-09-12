@@ -7,7 +7,6 @@ Test library with function discovery in C.
 * Functions starting with a certain prefix are executed as tests (default prefix: `test_`);
 * No special macros to declare or register test functions;
 * No special treatment for setup/teardown, they are just functions;
-* One single assert macro (`TP_ASSERT`);
 * Console or TAP output.
 
 ## Limitations
@@ -46,6 +45,29 @@ or even print additional information.
 
 ```c
 TP_ASSERT(t, 1 == 2, free(ptr), printf("Released"));
+```
+
+#### Additional assert macros
+
+`TP_ASSERT` adds only the conditional statement to the error message.
+The following macros add actual values to the error messages, making the
+debug process easier.
+
+```c
+int a = 4;
+int b = 3;
+// These macros add the values to the error message.
+// The format string is mandatory.
+TP_ASSERT_EQ(t, a, b, "%d");
+TP_ASSERT_NE(t, a, b, "0x%x");
+```
+
+```c
+uint8_t a1[] = {1, 2, 3, 4};
+uint8_t a2[] = {1, 2, 33, 4};
+// Compares two memory regions using `memcmp`.
+// This macro adds the value of the first different value.
+TP_ASSERT_MEM_EQ(t, a1, a2, sizeof(a1));
 ```
 
 ### Run

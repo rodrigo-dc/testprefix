@@ -1,23 +1,52 @@
 TAP version 13
-1..9
-not ok 1 test_suite1_nok_in_setup
+1..17
+not ok 1 test_suite1_nok_eq_macro_defines
   ---
-  message: 'test.c:54: assertion failed: `1 == 4`'
+  message: 'test.c:99: assertion failed: `AA == BB`. Values: 0xa9, 0xffffec78'
   ...
-not ok 2 test_suite1_nok_integer_comparison
+not ok 2 test_suite1_nok_eq_macro_literals
   ---
-  message: 'test.c:14: assertion failed: `1 == 2`'
+  message: 'test.c:90: assertion failed: `5 == 100`. Values: 5, 100'
   ...
-not ok 3 test_suite1_nok_mem_comparison
+not ok 3 test_suite1_nok_eq_macro_vars
   ---
-  message: 'test.c:20: assertion failed: `memcmp("abcd", "efghi", sizeof("abcd")) == 0`'
+  message: 'test.c:83: assertion failed: `x == y`. Values: 5, 3'
   ...
-not ok 4 test_suite1_nok_with_free
+not ok 4 test_suite1_nok_in_setup
   ---
-  message: 'test.c:35: assertion failed: `1 == 2`'
+  message: 'test.c:53: assertion failed: `1 == 4`'
   ...
-ok 5 test_suite1_ok_integer_comparison
-ok 6 test_suite1_ok_mem_comparison
-ok 7 test_suite1_ok_with_free
-ok 8 test_suite1_ok_with_setup
-ok 9 test_suite1_skip # skipped
+not ok 5 test_suite1_nok_integer_comparison
+  ---
+  message: 'test.c:15: assertion failed: `1 == 2`'
+  ...
+not ok 6 test_suite1_nok_mem_comparison
+  ---
+  message: 'test.c:21: assertion failed: `memcmp("abcd", "efghi", sizeof("abcd")) == 0`'
+  ...
+not ok 7 test_suite1_nok_mem_eq
+  ---
+  message: 'test.c:151: assertion failed: buffers are not equal. First difference at [2]: 0x03 - 0x21'
+  ...
+not ok 8 test_suite1_nok_ne_macro_defines
+  ---
+  message: 'test.c:124: assertion failed: `CC != DD`. Values: 0x3c, 0x3c'
+  ...
+not ok 9 test_suite1_nok_ne_macro_literals
+  ---
+  message: 'test.c:115: assertion failed: `125 != 125`. Values: 125, 125'
+  ...
+not ok 10 test_suite1_nok_ne_macro_vars
+  ---
+  message: 'test.c:108: assertion failed: `x != y`. Values: -500, -500'
+  ...
+not ok 11 test_suite1_nok_with_free
+  ---
+  message: 'test.c:36: assertion failed: `1 == 2`'
+  ...
+ok 12 test_suite1_ok_eq_macro
+ok 13 test_suite1_ok_integer_comparison
+ok 14 test_suite1_ok_mem_comparison
+ok 15 test_suite1_ok_with_free
+ok 16 test_suite1_ok_with_setup
+ok 17 test_suite1_skip # skipped
