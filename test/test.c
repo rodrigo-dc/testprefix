@@ -146,7 +146,7 @@ int test_suite1_ok_eq_macro(void *t)
 int test_suite1_nok_mem_eq(void *t)
 {
     uint8_t a1[] = {1, 2, 3, 4};
-    uint8_t a2[] = {1, 2, 33, 4};
+    uint8_t a2[] = {1, 2, 33, 44};
 
     TP_ASSERT_MEM_EQ(t, a1, a2, sizeof(a1));
 

@@ -50,6 +50,7 @@ struct test_context {
             for (size_t i = 0; i < SIZE; i++) {                                \
                 if (((uint8_t *)(BUF_A))[i] != ((uint8_t *)(BUF_B))[i]) {      \
                     first_diff = i;                                            \
+                    break;                                                     \
                 }                                                              \
             }                                                                  \
             snprintf(ctx->err_msg, TP_MAX_MSG_SIZE,                            \
