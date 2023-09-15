@@ -713,6 +713,9 @@ static void print_test_names(int test_count, struct test_info *tests)
     printf("\n%s: %d\n", BOLD_CONST("Total"), test_count);
 }
 
+__attribute__((weak)) int TP_global_setup() { return 0; }
+__attribute__((weak)) void TP_global_teardown() {}
+
 int main(int argc, char *argv[])
 {
     struct cli_args args;
@@ -748,7 +751,11 @@ int main(int argc, char *argv[])
         } else {
             setup_console_reporter(&console_priv, &reporter);
         }
-        ret = run_tests(test_count, tests, &reporter);
+        ret = TP_global_setup();
+        if (ret == 0) {
+            ret = run_tests(test_count, tests, &reporter);
+            TP_global_teardown();
+        }
     }
 
     free(tests);

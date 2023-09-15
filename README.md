@@ -70,6 +70,26 @@ uint8_t a2[] = {1, 2, 33, 4};
 TP_ASSERT_MEM_EQ(t, a1, a2, sizeof(a1));
 ```
 
+### Global setup/teardown functions
+
+Optionally, setup and teardown functions can be defined.
+
+The global setup function is executed once, before the first test. If its
+return value is not `0`, the test application exits immediately without
+invoking `TP_global_teardown`.
+
+```c
+// Global setup prototype
+int TP_global_setup();
+```
+
+The global teardown function is executed once, after the last test.
+
+```c
+// Global teardown prototype
+void TP_global_teardown()
+```
+
 ### Run
 
 Copy `testprefix.c` and `testprefix.h` to your project. Build a test application from
