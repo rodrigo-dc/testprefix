@@ -6,12 +6,6 @@ int TP_global_setup()
     return 0;
 }
 
-void TP_global_teardown()
-{
-    printf("Custom global teardown!\n");
-}
+void TP_global_teardown() { printf("Custom global teardown!\n"); }
 
-void test_single_error()
-{
-    TP_ASSERT(1 != 0);
-}
+void test_single() { ASSERT_TRUE(1 != 0, "this will pass"); }

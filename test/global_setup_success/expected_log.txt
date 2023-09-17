@@ -1,5 +1,5 @@
 Custom global setup!
-[ TEST ] 0 test_single_error
+[ TEST ] 0 test_single
 [ PASS ] 0 | 
 
   Total: 1

@@ -1,9 +1,10 @@
 // Copyright 2021 Rodrigo Dias Correa. See LICENSE.
-// Version 1.2
+// Version 2.x
 
 #ifndef TESTPREFIX_H_
 #define TESTPREFIX_H_
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -30,66 +31,118 @@ struct TP_test_context {
 
 extern struct TP_test_context TP_context;
 
-#define TP_SKIP(REASON)                                                        \
+// Internal function, not part of the public API.
+void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
+                      size_t mem_size);
+
+#define TP_STR(X) #X
+#define TP_STR_VAL(X) TP_STR(X)
+#define TP_LINE_STR TP_STR_VAL(__LINE__)
+
+#define SKIP(...)                                                              \
     do {                                                                       \
         TP_context.result.status = TP_TEST_SKIPPED;                            \
-        snprintf(TP_context.result.message, TP_MAX_MSG_SIZE, "%s",             \
-                 (REASON) == NULL ? "" : (REASON));                              \
+        (void)snprintf(TP_context.result.message, TP_MAX_MSG_SIZE,             \
+                       " " __VA_ARGS__);                                       \
         longjmp(TP_context.env, 1);                                            \
     } while (0)
 
-#define TP_ASSERT(cond, ...)                                                   \
-    do {                                                                       \
-        if (!(cond)) {                                                         \
-            TP_context.result.status = TP_TEST_FAILED;                         \
-            snprintf(TP_context.result.message, TP_MAX_MSG_SIZE,               \
-                     "%s:%d: assertion failed: '%s'", __FILE__, __LINE__,      \
-                     #cond);                                                   \
-            __VA_ARGS__;                                                       \
-            longjmp(TP_context.env, 1);                                        \
-        }                                                                      \
-    } while (0)
-
-#define TP_BASE_SCALAR(COND, COND_STR, VAL_A, VAL_B, FMT, ...)                 \
+#define TP_BASE_BOOL(COND, COND_STR, ...)                                      \
     do {                                                                       \
         if (!(COND)) {                                                         \
             TP_context.result.status = TP_TEST_FAILED;                         \
-            snprintf(TP_context.result.message, TP_MAX_MSG_SIZE,               \
-                     "%s:%d: assertion failed: '%s'. Values: " FMT ", " FMT,   \
-                     __FILE__, __LINE__, COND_STR, VAL_A, VAL_B);              \
-            __VA_ARGS__;                                                       \
+            (void)snprintf(TP_context.result.message, TP_MAX_MSG_SIZE,         \
+                           __FILE__ ":" TP_LINE_STR                            \
+                                    ": assertion failed: '" COND_STR           \
+                                    "' - " __VA_ARGS__);                       \
             longjmp(TP_context.env, 1);                                        \
         }                                                                      \
     } while (0)
 
-#define TP_ASSERT_MEM_EQ(BUF_A, BUF_B, SIZE, ...)                              \
+#define TP_BASE_COMPARISON(COND, COND_STR, VAL_A, VAL_B, FMT, TYPE, ...)       \
     do {                                                                       \
-        if (memcmp(BUF_A, BUF_B, SIZE) != 0) {                                 \
-            size_t first_diff = 0;                                             \
-            for (size_t i = 0; i < SIZE; i++) {                                \
-                if (((uint8_t *)(BUF_A))[i] != ((uint8_t *)(BUF_B))[i]) {      \
-                    first_diff = i;                                            \
-                    break;                                                     \
-                }                                                              \
-            }                                                                  \
+        if (!(COND)) {                                                         \
             TP_context.result.status = TP_TEST_FAILED;                         \
-            snprintf(TP_context.result.message, TP_MAX_MSG_SIZE,               \
-                     "%s:%d: assertion failed: buffers are not equal."         \
-                     " First difference at [%zu]: 0x%.2x - 0x%.2x",            \
-                     __FILE__, __LINE__, first_diff,                           \
-                     ((uint8_t *)(BUF_A))[first_diff],                         \
-                     ((uint8_t *)(BUF_B))[first_diff]);                        \
-            __VA_ARGS__;                                                       \
+            (void)snprintf(TP_context.result.message, TP_MAX_MSG_SIZE,         \
+                           __FILE__ ":" TP_LINE_STR                            \
+                                    ": assertion failed: '" COND_STR           \
+                                    "'. Values: " FMT ", " FMT ".",            \
+                           (TYPE)VAL_A, (TYPE)VAL_B);                          \
+            const size_t message_len = strlen(TP_context.result.message);      \
+            const size_t remaining_space = TP_MAX_MSG_SIZE - message_len;      \
+            (void)snprintf(&TP_context.result.message[message_len],            \
+                           remaining_space, " " __VA_ARGS__);                  \
             longjmp(TP_context.env, 1);                                        \
         }                                                                      \
     } while (0)
 
-#define TP_ASSERT_EQ(VAL_A, VAL_B, FMT, ...)                                   \
-    TP_BASE_SCALAR((VAL_A) == (VAL_B), #VAL_A " == " #VAL_B, VAL_A, VAL_B,     \
-                   FMT, __VA_ARGS__)
+#define TP_BASE_MEM_COMPARISON(COND, BUF_A, BUF_B, SIZE, ...)                  \
+    do {                                                                       \
+        if (!(COND)) {                                                         \
+            char a_content[TP_MAX_MSG_SIZE / 4] = {0};                         \
+            char b_content[TP_MAX_MSG_SIZE / 4] = {0};                         \
+            TP_mem_to_string(a_content, sizeof(a_content), BUF_A, SIZE);       \
+            TP_mem_to_string(b_content, sizeof(b_content), BUF_B, SIZE);       \
+            TP_context.result.status = TP_TEST_FAILED;                         \
+            (void)snprintf(                                                    \
+                TP_context.result.message, TP_MAX_MSG_SIZE,                    \
+                __FILE__                                                       \
+                ":" TP_LINE_STR                                                \
+                ": assertion failed: buffers are not equal." __VA_ARGS__);     \
+            const size_t message_len = strlen(TP_context.result.message);      \
+            const size_t remaining_space = TP_MAX_MSG_SIZE - message_len;      \
+            (void)snprintf(&TP_context.result.message[message_len],            \
+                           remaining_space, " - Values: %s, %s", a_content,    \
+                           b_content);                                         \
+            longjmp(TP_context.env, 1);                                        \
+        }                                                                      \
+    } while (0)
 
-#define TP_ASSERT_NE(VAL_A, VAL_B, FMT, ...)                                   \
-    TP_BASE_SCALAR((VAL_A) != (VAL_B), #VAL_A " != " #VAL_B, VAL_A, VAL_B,     \
-                   FMT, __VA_ARGS__)
+#define ASSERT_TRUE(COND, ...) TP_BASE_BOOL((COND), #COND, __VA_ARGS__)
+
+#define ASSERT_FALSE(COND, ...)                                                \
+    TP_BASE_BOOL(!(COND), "!(" #COND ")", __VA_ARGS__)
+
+#define ASSERT_UINT_EQ(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) == (VAL2), #VAL1 " == " #VAL2, VAL1, VAL2,       \
+                       "%" PRIu64, uint64_t, __VA_ARGS__)
+
+#define ASSERT_UINT_NE(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) != (VAL2), #VAL1 " != " #VAL2, VAL1, VAL2,       \
+                       "%" PRIu64, uint64_t, __VA_ARGS__)
+
+#define ASSERT_INT_EQ(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) == (VAL2), #VAL1 " == " #VAL2, VAL1, VAL2,       \
+                       "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define ASSERT_INT_NE(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) != (VAL2), #VAL1 " != " #VAL2, VAL1, VAL2,       \
+                       "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define ASSERT_PTR_EQ(PTR1, PTR2, ...)                                         \
+    TP_BASE_COMPARISON((PTR1) == (PTR2), #PTR1 " == " #PTR2, PTR1, PTR2, "%p", \
+                       void *, __VA_ARGS__)
+
+#define ASSERT_PTR_NE(PTR1, PTR2, ...)                                         \
+    TP_BASE_COMPARISON((PTR1) != (PTR2), #PTR1 " != " #PTR2, PTR1, PTR2, "%p", \
+                       void *, __VA_ARGS__)
+
+#define ASSERT_STR_EQ(STR1, STR2, ...)                                         \
+    TP_BASE_COMPARISON(strcmp(STR1, STR2) == 0,                                \
+                       "strcmp(" #STR1 ", " #STR2 ") == 0", STR1, STR2,        \
+                       "'%s'", const char *, __VA_ARGS__)
+
+#define ASSERT_STR_NE(STR1, STR2, ...)                                         \
+    TP_BASE_COMPARISON(strcmp(STR1, STR2) != 0,                                \
+                       "strcmp(" #STR1 ", " #STR2 ") != 0", STR1, STR2,        \
+                       "'%s'", const char *, __VA_ARGS__)
+
+#define ASSERT_MEM_EQ(PTR1, PTR2, SIZE, ...)                                   \
+    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) == 0, PTR1, PTR2, SIZE,    \
+                           __VA_ARGS__)
+
+#define ASSERT_MEM_NE(PTR1, PTR2, SIZE, ...)                                   \
+    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) != 0, PTR1, PTR2, SIZE,    \
+                           __VA_ARGS__)
 
 #endif // TESTPREFIX_H_

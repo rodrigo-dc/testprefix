@@ -1,5 +1,5 @@
 // Copyright 2021 Rodrigo Dias Correa. See LICENSE.
-// Version 1.2
+// Version 2.x
 
 #include "testprefix.h"
 
@@ -606,6 +606,34 @@ static int find_tests(int fd, const char *prefix, struct test_info **tests)
     }
 
     return create_test_list(fd, &header, &symtab_header, prefix, tests);
+}
+
+//
+// Helper function used by assert macros
+//
+
+// Creates a null-terminated string with the hexadecimal representation of a
+// memory region. The maximum size of the string, including '\0', will be
+// 'str_max_size'.
+//
+// Example: { 0xa1, 0xb2, 0xc3 } => "a1b2c3"
+void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
+                      size_t mem_size)
+{
+    const uint8_t *mem_ptr = (const uint8_t *)mem;
+    const uint8_t *mem_end = mem_ptr + mem_size;
+
+    str[0] = 0;
+    for (; mem_ptr < mem_end; mem_ptr++) {
+        size_t str_i = strlen(str);
+        size_t remaining_space = str_max_size - str_i;
+
+        int ret = snprintf(&str[str_i], remaining_space, "%.2x", *mem_ptr);
+        if (ret < 0 || (size_t)ret >= remaining_space) {
+            // The string was truncated, time to stop.
+            break;
+        }
+    }
 }
 
 //
