@@ -11,8 +11,7 @@ void TP_global_teardown()
     printf("Custom global teardown! Should never be executed.\n");
 }
 
-int test_single_success()
+void test_single_success()
 {
     TP_ASSERT(1 != 1);
-    return 0;
 }

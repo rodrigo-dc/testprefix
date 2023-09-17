@@ -243,14 +243,6 @@ static int read_next_symtab_header(int fd, struct elf_header *header,
 //
 // Test reporters
 //
-enum test_status { TEST_PASSED, TEST_FAILED, TEST_SKIPPED };
-
-struct test_result {
-    enum test_status status;
-    struct timespec begin;
-    struct timespec end;
-    char err_msg[TP_MAX_MSG_SIZE];
-};
 
 // Interface that must be implemented by a test reporter.
 struct test_reporter {
@@ -262,7 +254,7 @@ struct test_reporter {
     int (*test_begin_cb)(int index, const char *name, void *private);
     // Called after each test execution.
     int (*test_end_cb)(int index, const char *name,
-                       const struct test_result *result, void *private);
+                       const struct TP_test_result *result, void *private);
     // Called once, after all test executions. Any allocated resource
     // must be released here.
     int (*finish_cb)(struct test_reporter *self);
@@ -325,17 +317,18 @@ static int console_test_begin_cb(int index, const char *name, void *private)
 }
 
 static int console_test_end_cb(int index, const char *name,
-                               const struct test_result *result, void *private)
+                               const struct TP_test_result *result,
+                               void *private)
 {
     (void)name;
 
     char *result_string;
     struct console_private *cp = (struct console_private *)private;
 
-    if (result->status == TEST_PASSED) {
+    if (result->status == TP_TEST_PASSED) {
         cp->success_counter++;
         result_string = GREEN_CONST("PASS");
-    } else if (result->status == TEST_SKIPPED) {
+    } else if (result->status == TP_TEST_SKIPPED) {
         cp->skip_counter++;
         result_string = YELLOW_CONST("SKIP");
     } else {
@@ -346,8 +339,8 @@ static int console_test_end_cb(int index, const char *name,
     printf("[ %s ] %d | %ld ms", result_string, index,
            elapsed_time_ms(&result->begin, &result->end));
 
-    if (result->err_msg[0] != '\0') {
-        printf(" | %s", result->err_msg);
+    if (result->message[0] != '\0') {
+        printf(" | %s", result->message);
     }
     printf("\n");
 
@@ -425,21 +418,21 @@ static void replace_single_quotes(char *str)
 }
 
 static int tap_test_end_cb(int index, const char *name,
-                           const struct test_result *result, void *private)
+                           const struct TP_test_result *result, void *private)
 {
     struct tap_private *tp = (struct tap_private *)private;
 
-    if (result->status == TEST_FAILED) {
+    if (result->status == TP_TEST_FAILED) {
         dprintf(tp->fd, "not ");
     }
 
     dprintf(tp->fd, "ok %d %s", index + 1, name);
-    if (result->status == TEST_SKIPPED) {
-        dprintf(tp->fd, " # skipped");
-    } else if (result->status == TEST_FAILED) {
-        char yaml_msg[sizeof(result->err_msg)] = {0};
+    if (result->status == TP_TEST_SKIPPED) {
+        dprintf(tp->fd, " # SKIP %s", result->message);
+    } else if (result->status == TP_TEST_FAILED) {
+        char yaml_msg[sizeof(result->message)] = {0};
 
-        strncpy(yaml_msg, result->err_msg, sizeof(yaml_msg) - 1);
+        strncpy(yaml_msg, result->message, sizeof(yaml_msg) - 1);
         replace_single_quotes(yaml_msg);
 
         dprintf(tp->fd, "\n  ---\n");
@@ -483,7 +476,7 @@ static void setup_tap_reporter(const char *path, struct tap_private *priv,
 #define FUNC_PREFIX_DEFAULT "test_"
 
 int main(int argc, char *argv[]);
-typedef int (*testfunc)();
+typedef void (*testfunc)();
 
 struct test_info {
     testfunc func;
@@ -668,7 +661,7 @@ static int parse_args(int argc, char *argv[], struct cli_args *args)
 //
 // Test execution
 //
-struct test_context TP_test_context;
+struct TP_test_context TP_context;
 static int run_tests(int test_count, struct test_info *tests,
                      struct test_reporter *r)
 {
@@ -680,25 +673,21 @@ static int run_tests(int test_count, struct test_info *tests,
 
     int ret_code = 0;
     for (int i = 0; i < test_count; i++) {
-        struct test_result result = {0};
-        TP_test_context.err_msg = result.err_msg;
+        TP_context.result.message[0] = '\0';
 
-        clock_gettime(CLOCK_REALTIME, &result.begin);
-        ret = setjmp(TP_test_context.env);
+        clock_gettime(CLOCK_REALTIME, &TP_context.result.begin);
+        ret = setjmp(TP_context.env);
         if (ret == 0) {
             r->test_begin_cb(i, tests[i].name, r->private);
-            int test_ret = tests[i].func();
-            if (test_ret == 0) {
-                result.status = TEST_PASSED;
-            } else {
-                result.status = TEST_SKIPPED;
-            }
+            tests[i].func();
+            TP_context.result.status = TP_TEST_PASSED;
         } else {
-            result.status = TEST_FAILED;
-            ret_code = -1;
+            if (TP_context.result.status == TP_TEST_FAILED) {
+                ret_code = -1;
+            }
         }
-        clock_gettime(CLOCK_REALTIME, &result.end);
-        r->test_end_cb(i, tests[i].name, &result, r->private);
+        clock_gettime(CLOCK_REALTIME, &TP_context.result.end);
+        r->test_end_cb(i, tests[i].name, &TP_context.result, r->private);
     }
     r->finish_cb(r);
 
