@@ -1,40 +1,111 @@
-[ TEST ] 0 test_suite1_nok_eq_macro_defines
-[ FAIL ] 0 |  | test.c:82: assertion failed: 'AA == BB'. Values: 0xa9, 0xffffec78
-[ TEST ] 1 test_suite1_nok_eq_macro_literals
-[ FAIL ] 1 |  | test.c:75: assertion failed: '5 == 100'. Values: 5, 100
-[ TEST ] 2 test_suite1_nok_eq_macro_vars
-[ FAIL ] 2 |  | test.c:70: assertion failed: 'x == y'. Values: 5, 3
-[ TEST ] 3 test_suite1_nok_in_setup
-[ FAIL ] 3 |  | test.c:45: assertion failed: '1 == 4'
-[ TEST ] 4 test_suite1_nok_integer_comparison
-[ FAIL ] 4 |  | test.c:14: assertion failed: '1 == 2'
-[ TEST ] 5 test_suite1_nok_mem_comparison
-[ FAIL ] 5 |  | test.c:19: assertion failed: 'memcmp("abcd", "efghi", sizeof("abcd")) == 0'
-[ TEST ] 6 test_suite1_nok_mem_eq
-[ FAIL ] 6 |  | test.c:124: assertion failed: buffers are not equal. First difference at [2]: 0x03 - 0x21
-[ TEST ] 7 test_suite1_nok_ne_macro_defines
-extra print
-[ FAIL ] 7 |  | test.c:101: assertion failed: 'CC != DD'. Values: 0x3c, 0x3c
-[ TEST ] 8 test_suite1_nok_ne_macro_literals
-[ FAIL ] 8 |  | test.c:94: assertion failed: '125 != 125'. Values: 125, 125
-[ TEST ] 9 test_suite1_nok_ne_macro_vars
-[ FAIL ] 9 |  | test.c:89: assertion failed: 'x != y'. Values: -500, -500
-[ TEST ] 10 test_suite1_nok_with_free
-Released[ FAIL ] 10 |  | test.c:32: assertion failed: '1 == 2'
-[ TEST ] 11 test_suite1_ok_eq_macro
-[ PASS ] 11 | 
-[ TEST ] 12 test_suite1_ok_integer_comparison
-[ PASS ] 12 | 
-[ TEST ] 13 test_suite1_ok_mem_comparison
-[ PASS ] 13 | 
-[ TEST ] 14 test_suite1_ok_with_free
-[ PASS ] 14 | 
-[ TEST ] 15 test_suite1_ok_with_setup
-[ PASS ] 15 | 
-[ TEST ] 16 test_suite1_skip
-[ SKIP ] 16 |  | testing skip
+[ TEST ] 0 test_fail_assert_false_define
+[ FAIL ] 0 |  | test.c:63: assertion failed: '!(B > A)' - check error messages with preprocessor definitions
+[ TEST ] 1 test_fail_assert_false_literal
+[ FAIL ] 1 |  | test.c:48: assertion failed: '!(20 > 10)' - check error messages with literals
+[ TEST ] 2 test_fail_assert_false_no_message
+[ FAIL ] 2 |  | test.c:44: assertion failed: '!(20 > 10)' - 
+[ TEST ] 3 test_fail_assert_false_var
+[ FAIL ] 3 |  | test.c:56: assertion failed: '!(a != b)' - check error messages with variable names
+[ TEST ] 4 test_fail_assert_int_eq_define
+[ FAIL ] 4 |  | test.c:154: assertion failed: 'A == B'. Values: 5, 10. check error messages with preprocessor definitions
+[ TEST ] 5 test_fail_assert_int_eq_formatted_message
+[ FAIL ] 5 |  | test.c:134: assertion failed: 'a == b'. Values: 2, -3. sum: -1
+[ TEST ] 6 test_fail_assert_int_eq_literal
+[ FAIL ] 6 |  | test.c:139: assertion failed: '-20 == 10'. Values: -20, 10. check error messages with literals
+[ TEST ] 7 test_fail_assert_int_eq_var
+[ FAIL ] 7 |  | test.c:147: assertion failed: 'a == b'. Values: 2, -3. check error messages with variable names
+[ TEST ] 8 test_fail_assert_int_ne_define
+[ FAIL ] 8 |  | test.c:181: assertion failed: 'A != B'. Values: -500, -500. check error messages with preprocessor definitions
+[ TEST ] 9 test_fail_assert_int_ne_literal
+[ FAIL ] 9 |  | test.c:166: assertion failed: '-20 != -20'. Values: -20, -20. check error messages with literals
+[ TEST ] 10 test_fail_assert_int_ne_var
+[ FAIL ] 10 |  | test.c:174: assertion failed: 'a != b'. Values: 3, 3. check error messages with variable names
+[ TEST ] 11 test_fail_assert_mem_eq_first_byte
+[ FAIL ] 11 |  | test.c:306: assertion failed: buffers are not equal.first byte different - Values: aabbcc, ddbbcc
+[ TEST ] 12 test_fail_assert_mem_eq_last_byte
+[ FAIL ] 12 |  | test.c:314: assertion failed: buffers are not equal.last byte different - Values: aabbcc, aabbdd
+[ TEST ] 13 test_fail_assert_mem_eq_no_message
+[ FAIL ] 13 |  | test.c:298: assertion failed: buffers are not equal. - Values: aabbcc, ddbbcc
+[ TEST ] 14 test_fail_assert_mem_eq_truncated_buf
+[ FAIL ] 14 |  | test.c:328: assertion failed: buffers are not equal.big buffer, last byte different - Values: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e, 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e
+[ TEST ] 15 test_fail_assert_mem_ne
+[ FAIL ] 15 |  | test.c:356: assertion failed: buffers are not equal.same content, size: 3 - Values: aabbcc, aabbcc
+[ TEST ] 16 test_fail_assert_ptr_eq
+[ FAIL ] 16 |  | test.c:204: assertion failed: 'ptr == NULL'. Values: 0x80000001, (nil). comparing valid pointer to NULL
+[ TEST ] 17 test_fail_assert_ptr_ne
+[ FAIL ] 17 |  | test.c:226: assertion failed: 'ptr != ptr'. Values: 0x80000001, 0x80000001. comparing the same pointer
+[ TEST ] 18 test_fail_assert_str_eq_define
+[ FAIL ] 18 |  | test.c:251: assertion failed: 'strcmp(STRING1, STRING2) == 0'. Values: 'asdfghjkl', ''. check error messages with preprocessor definitions
+[ TEST ] 19 test_fail_assert_str_eq_literal
+[ FAIL ] 19 |  | test.c:236: assertion failed: 'strcmp("abcdef", "zyx") == 0'. Values: 'abcdef', 'zyx'. check error messages with literals
+[ TEST ] 20 test_fail_assert_str_eq_var
+[ FAIL ] 20 |  | test.c:244: assertion failed: 'strcmp(s1, s2) == 0'. Values: 'eee', 'qwertyuiop'. check error messages with variables
+[ TEST ] 21 test_fail_assert_str_ne_define
+[ FAIL ] 21 |  | test.c:279: assertion failed: 'strcmp(STRING1, STRING2) != 0'. Values: 'asdfghjkl', 'asdfghjkl'. check error messages with preprocessor definitions
+[ TEST ] 22 test_fail_assert_str_ne_literal
+[ FAIL ] 22 |  | test.c:264: assertion failed: 'strcmp("zxcvbnm", "zxcvbnm") != 0'. Values: 'zxcvbnm', 'zxcvbnm'. check error messages with literals
+[ TEST ] 23 test_fail_assert_str_ne_var
+[ FAIL ] 23 |  | test.c:272: assertion failed: 'strcmp(s1, s2) != 0'. Values: 'qwertyuiop', 'qwertyuiop'. check error messages with variables
+[ TEST ] 24 test_fail_assert_true_define
+[ FAIL ] 24 |  | test.c:34: assertion failed: 'A > B' - check error messages with preprocessor definitions
+[ TEST ] 25 test_fail_assert_true_formatted_message
+[ FAIL ] 25 |  | test.c:14: assertion failed: '0 > 1' - not that useful
+[ TEST ] 26 test_fail_assert_true_literal
+[ FAIL ] 26 |  | test.c:19: assertion failed: '0 > 1' - check error messages with literals
+[ TEST ] 27 test_fail_assert_true_var
+[ FAIL ] 27 |  | test.c:27: assertion failed: 'a == b' - check error messages with variable names
+[ TEST ] 28 test_fail_assert_uint_eq_define
+[ FAIL ] 28 |  | test.c:92: assertion failed: 'A == B'. Values: 5, 10. check error messages with preprocessor definitions
+[ TEST ] 29 test_fail_assert_uint_eq_literal
+[ FAIL ] 29 |  | test.c:77: assertion failed: '20 == 10'. Values: 20, 10. check error messages with literals
+[ TEST ] 30 test_fail_assert_uint_eq_no_message
+[ FAIL ] 30 |  | test.c:73: assertion failed: '20 == 10'. Values: 20, 10. 
+[ TEST ] 31 test_fail_assert_uint_eq_var
+[ FAIL ] 31 |  | test.c:85: assertion failed: 'a == b'. Values: 2, 3. check error messages with variable names
+[ TEST ] 32 test_fail_assert_uint_ne_define
+[ FAIL ] 32 |  | test.c:119: assertion failed: 'A != B'. Values: 500, 500. check error messages with preprocessor definitions
+[ TEST ] 33 test_fail_assert_uint_ne_literal
+[ FAIL ] 33 |  | test.c:104: assertion failed: '20 != 20'. Values: 20, 20. check error messages with literals
+[ TEST ] 34 test_fail_assert_uint_ne_var
+[ FAIL ] 34 |  | test.c:112: assertion failed: 'a != b'. Values: 3, 3. check error messages with variable names
+[ TEST ] 35 test_fail_in_setup
+[ FAIL ] 35 |  | test.c:359: assertion failed: '1 == 4' - this should fail
+[ TEST ] 36 test_pass_assert_false
+[ PASS ] 36 | 
+[ TEST ] 37 test_pass_assert_int_eq
+[ PASS ] 37 | 
+[ TEST ] 38 test_pass_assert_int_ne
+[ PASS ] 38 | 
+[ TEST ] 39 test_pass_assert_mem_eq
+[ PASS ] 39 | 
+[ TEST ] 40 test_pass_assert_mem_ne
+[ PASS ] 40 | 
+[ TEST ] 41 test_pass_assert_ptr_eq
+[ PASS ] 41 | 
+[ TEST ] 42 test_pass_assert_ptr_eq_null
+[ PASS ] 42 | 
+[ TEST ] 43 test_pass_assert_ptr_ne
+[ PASS ] 43 | 
+[ TEST ] 44 test_pass_assert_ptr_ne_null
+[ PASS ] 44 | 
+[ TEST ] 45 test_pass_assert_str_eq
+[ PASS ] 45 | 
+[ TEST ] 46 test_pass_assert_str_ne
+[ PASS ] 46 | 
+[ TEST ] 47 test_pass_assert_true
+[ PASS ] 47 | 
+[ TEST ] 48 test_pass_assert_uint_eq
+[ PASS ] 48 | 
+[ TEST ] 49 test_pass_assert_uint_ne
+[ PASS ] 49 | 
+[ TEST ] 50 test_pass_in_setup
+[ PASS ] 50 | 
+[ TEST ] 51 test_skip
+[ SKIP ] 51 |  |  testing SKIP
+[ TEST ] 52 test_skip_without_reason
+[ SKIP ] 52 |  |  
 
-  Total: 17
- Passed: 5
- Failed: 11
-Skipped: 1
+  Total: 53
+ Passed: 15
+ Failed: 36
+Skipped: 2

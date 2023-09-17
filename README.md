@@ -1,73 +1,95 @@
 # testprefix
 
-![Demo](/doc/demo.gif?raw=true)
-
 Test library with function discovery in C.
 
-* Functions starting with a certain prefix are executed as tests (default prefix: `test_`);
-* No special macros to declare or register test functions;
-* No special treatment for setup/teardown, they are just functions;
-* Console or TAP output.
+* Functions whose names start with a certain prefix are automatically
+  executed as tests functions. The default prefix is `test_`.
+* No special test declaration or registration is needed.
+* Console or TAP report.
 
 ## Limitations
 
-* It only works with ELF executables;
-* You can't strip your test application. `testprefix` uses the symbol table.
+* The test application must be a not-stripped ELF executable.
 
-## Usage
-
-### Write a test
+## Writing tests
 
 Include `testprefix.h` and create a function named according to the prefix
-you want to use. The default prefix is `test_`.
-Make assertions using `TP_ASSERT` macro.
+you want to use. Then, use any of the assertion macros.
 
 ```c
-void test_suite1_nok_integer_comparison()
+void test_suite1_ok_integer_comparison()
 {
-    TP_ASSERT(1 == 2);
+    ASSERT_INT_NE(1 == 2, "they are different");
 }
 ```
 
-The test fails in case of any assertion failure.
-
-You can call any assert macro from the inside of a setup-like function.
-#### Releasing resources
-
-If ``TP_ASSERT`` fails, the test is aborted. To avoid resource leaks, ``TP_ASSERT``
-takes optional parameters that can be used to deallocate memory, close files,
-or even print additional information.
+### Assertion macros
 
 ```c
-TP_ASSERT(1 == 2, free(ptr), printf("Released"));
+ASSERT_TRUE(COND, ...)
+```
+```c
+ASSERT_FALSE(COND, ...)
+```
+```c
+ASSERT_UINT_EQ(VAL1, VAL2, ...)
+```
+```c
+ASSERT_UINT_NE(VAL1, VAL2, ...)
+```
+```c
+ASSERT_INT_EQ(VAL1, VAL2, ...)
+```
+```c
+ASSERT_INT_NE(VAL1, VAL2, ...)
+```
+```c
+ASSERT_PTR_EQ(PTR1, PTR2, ...)
+```
+```c
+ASSERT_PTR_NE(PTR1, PTR2, ...)
+```
+```c
+ASSERT_STR_EQ(STR1, STR2, ...)
+```
+```c
+ASSERT_STR_NE(STR1, STR2, ...)
+```
+```c
+ASSERT_MEM_EQ(PTR1, PTR2, SIZE, ...)
+```
+```c
+ASSERT_MEM_NE(PTR1, PTR2, SIZE, ...)
 ```
 
-#### Additional assert macros
+All assertion macros can take a message as argument, which will be included
+in the error message in case of assertion failure.
 
-`TP_ASSERT` adds only the conditional statement to the error message.
-The following macros add actual values to the error messages, making the
-debug process easier.
+Example:
 
 ```c
-int a = 4;
-int b = 3;
-// These macros add the values to the error message.
-// The format string is mandatory.
-TP_ASSERT_EQ(a, b, "%d");
-TP_ASSERT_NE(a, b, "0x%x");
+ASSERT_TRUE(false, "iteration: %u", i);
 ```
 
+### Skipping tests
+
+To skip a test, use the macro `SKIP(...)` before any assertion macro.
+Optionally, a string can be passed to `SKIP()`. This string will be part
+of the report.
+
+Example:
+
 ```c
-uint8_t a1[] = {1, 2, 3, 4};
-uint8_t a2[] = {1, 2, 33, 4};
-// Compares two memory regions using `memcmp`.
-// This macro adds the value of the first different value.
-TP_ASSERT_MEM_EQ(a1, a2, sizeof(a1));
+SKIP("Skipped for some reason.");
 ```
+
+### Releasing resources
+
+Not implemented yet.
 
 ### Global setup/teardown functions
 
-Optionally, setup and teardown functions can be defined.
+Optionally, global setup and teardown functions can be defined.
 
 The global setup function is executed once, before the first test. If its
 return value is not `0`, the test application exits immediately without
@@ -85,12 +107,27 @@ The global teardown function is executed once, after the last test.
 void TP_global_teardown()
 ```
 
-### Run
+## Compiling
 
-Copy `testprefix.c` and `testprefix.h` to your project. Build a test application from
-`testprefix.c` and the other test sources.
+Copy `testprefix.c` and `testprefix.h` to your project. Build a test
+application from `testprefix.c` and the other test sources.
 
-Execute the test application as in one of the examples bellow.
+Some POSIX-specific functions are used in `testprefix.c`. If possible,
+specify `-std=gnu99` to build it cleanly.
+
+## Running
+
+Command line options:
+
+```
+Usage: ./test_app [-p PREFIX] [-l | -h | -o FILE]
+    -p  Set the test function PREFIX. The default is 'test_'.
+    -l  List the tests that match PREFIX.
+    -h  Show this help message.
+    -o  Write a test report to FILE (TAP format).
+```
+
+Examples:
 
 ```shell
 ./test_app # Run all tests
@@ -104,3 +141,7 @@ Execute the test application as in one of the examples bellow.
 ```shell
 ./test_app -l # Print the name of all test functions
 ```
+
+## Credits
+
+The new API (2.x) is heavily based on the feedback from @kholeg.

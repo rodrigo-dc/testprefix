@@ -75,6 +75,7 @@ for s in $SUBDIRS; do
 	TAP_FILE=log.tap
 
 	./$s/$BIN32 -p test_ > $s/$OUTPUT_FILE
+	# Remove test duration before comparing log files
 	sed -ri "s/[0-9]+ ms//g" $s/$OUTPUT_FILE
 	cmp $s/expected_$OUTPUT_FILE $s/$OUTPUT_FILE
 	if [ $? -ne 0 ]; then

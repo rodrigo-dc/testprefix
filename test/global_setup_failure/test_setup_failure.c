@@ -13,5 +13,5 @@ void TP_global_teardown()
 
 void test_single_success()
 {
-    TP_ASSERT(1 != 1);
+    ASSERT_TRUE(1 != 1, "this should fail");
 }
