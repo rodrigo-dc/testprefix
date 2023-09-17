@@ -2,15 +2,15 @@ TAP version 13
 1..17
 not ok 1 test_suite1_nok_eq_macro_defines
   ---
-  message: 'test.c:99: assertion failed: `AA == BB`. Values: 0xa9, 0xffffec78'
+  message: 'test.c:98: assertion failed: `AA == BB`. Values: 0xa9, 0xffffec78'
   ...
 not ok 2 test_suite1_nok_eq_macro_literals
   ---
-  message: 'test.c:90: assertion failed: `5 == 100`. Values: 5, 100'
+  message: 'test.c:89: assertion failed: `5 == 100`. Values: 5, 100'
   ...
 not ok 3 test_suite1_nok_eq_macro_vars
   ---
-  message: 'test.c:83: assertion failed: `x == y`. Values: 5, 3'
+  message: 'test.c:82: assertion failed: `x == y`. Values: 5, 3'
   ...
 not ok 4 test_suite1_nok_in_setup
   ---
@@ -26,19 +26,19 @@ not ok 6 test_suite1_nok_mem_comparison
   ...
 not ok 7 test_suite1_nok_mem_eq
   ---
-  message: 'test.c:151: assertion failed: buffers are not equal. First difference at [2]: 0x03 - 0x21'
+  message: 'test.c:150: assertion failed: buffers are not equal. First difference at [2]: 0x03 - 0x21'
   ...
 not ok 8 test_suite1_nok_ne_macro_defines
   ---
-  message: 'test.c:124: assertion failed: `CC != DD`. Values: 0x3c, 0x3c'
+  message: 'test.c:123: assertion failed: `CC != DD`. Values: 0x3c, 0x3c'
   ...
 not ok 9 test_suite1_nok_ne_macro_literals
   ---
-  message: 'test.c:115: assertion failed: `125 != 125`. Values: 125, 125'
+  message: 'test.c:114: assertion failed: `125 != 125`. Values: 125, 125'
   ...
 not ok 10 test_suite1_nok_ne_macro_vars
   ---
-  message: 'test.c:108: assertion failed: `x != y`. Values: -500, -500'
+  message: 'test.c:107: assertion failed: `x != y`. Values: -500, -500'
   ...
 not ok 11 test_suite1_nok_with_free
   ---

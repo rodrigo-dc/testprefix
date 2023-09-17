@@ -483,7 +483,7 @@ static void setup_tap_reporter(const char *path, struct tap_private *priv,
 #define FUNC_PREFIX_DEFAULT "test_"
 
 int main(int argc, char *argv[]);
-typedef int (*testfunc)(void *);
+typedef int (*testfunc)();
 
 struct test_info {
     testfunc func;
@@ -668,6 +668,7 @@ static int parse_args(int argc, char *argv[], struct cli_args *args)
 //
 // Test execution
 //
+struct test_context TP_test_context;
 static int run_tests(int test_count, struct test_info *tests,
                      struct test_reporter *r)
 {
@@ -680,13 +681,13 @@ static int run_tests(int test_count, struct test_info *tests,
     int ret_code = 0;
     for (int i = 0; i < test_count; i++) {
         struct test_result result = {0};
-        struct test_context ctx = {.err_msg = result.err_msg};
+        TP_test_context.err_msg = result.err_msg;
 
         clock_gettime(CLOCK_REALTIME, &result.begin);
-        ret = setjmp(ctx.env);
+        ret = setjmp(TP_test_context.env);
         if (ret == 0) {
             r->test_begin_cb(i, tests[i].name, r->private);
-            int test_ret = tests[i].func(&ctx);
+            int test_ret = tests[i].func();
             if (test_ret == 0) {
                 result.status = TEST_PASSED;
             } else {

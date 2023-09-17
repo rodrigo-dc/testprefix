@@ -18,14 +18,14 @@ Test library with function discovery in C.
 
 ### Write a test
 
-Include `testprefix.h`. Write a function that returns an `int` and takes a `void *` as parameter.
+Include `testprefix.h`. Write a function that returns an `int`.
 Name your function according to the prefix you want to use. The default is `test_`.
 Make assertions using `TP_ASSERT` macro.
 
 ```c
-int test_suite1_nok_integer_comparison(void *t)
+int test_suite1_nok_integer_comparison()
 {
-    TP_ASSERT(t, 1 == 2);
+    TP_ASSERT(1 == 2);
     return 0;
 }
 ```
@@ -34,9 +34,7 @@ Return `0` to indicate the test has passed.
 Return other values to indicate the test was skipped.
 The test fails in case of any assertion failure.
 
-You can call `TP_ASSERT` from the inside of a setup-like function. You only need to
-pass the `void *` parameter received by the test function.
-
+You can call `TP_ASSERT` from the inside of a setup-like function.
 #### Releasing resources
 
 If ``TP_ASSERT`` fails, the test is aborted. To avoid resource leaks, ``TP_ASSERT``
@@ -44,7 +42,7 @@ takes optional parameters that can be used to deallocate memory, close files,
 or even print additional information.
 
 ```c
-TP_ASSERT(t, 1 == 2, free(ptr), printf("Released"));
+TP_ASSERT(1 == 2, free(ptr), printf("Released"));
 ```
 
 #### Additional assert macros
@@ -58,8 +56,8 @@ int a = 4;
 int b = 3;
 // These macros add the values to the error message.
 // The format string is mandatory.
-TP_ASSERT_EQ(t, a, b, "%d");
-TP_ASSERT_NE(t, a, b, "0x%x");
+TP_ASSERT_EQ(a, b, "%d");
+TP_ASSERT_NE(a, b, "0x%x");
 ```
 
 ```c
@@ -67,7 +65,7 @@ uint8_t a1[] = {1, 2, 3, 4};
 uint8_t a2[] = {1, 2, 33, 4};
 // Compares two memory regions using `memcmp`.
 // This macro adds the value of the first different value.
-TP_ASSERT_MEM_EQ(t, a1, a2, sizeof(a1));
+TP_ASSERT_MEM_EQ(a1, a2, sizeof(a1));
 ```
 
 ### Global setup/teardown functions

@@ -18,33 +18,32 @@ struct test_context {
     char *err_msg;
 };
 
-#define TP_ASSERT(t, cond, ...)                                                \
+extern struct test_context TP_test_context;
+
+#define TP_ASSERT(cond, ...)                                                   \
     do {                                                                       \
-        struct test_context *ctx = (struct test_context *)t;                   \
         if (!(cond)) {                                                         \
-            snprintf(ctx->err_msg, TP_MAX_MSG_SIZE,                            \
+            snprintf(TP_test_context.err_msg, TP_MAX_MSG_SIZE,                 \
                      "%s:%d: assertion failed: '%s'", __FILE__, __LINE__,      \
                      #cond);                                                   \
             __VA_ARGS__;                                                       \
-            longjmp(ctx->env, 1);                                              \
+            longjmp(TP_test_context.env, 1);                                   \
         }                                                                      \
     } while (0)
 
-#define TP_BASE_SCALAR(T, COND, COND_STR, VAL_A, VAL_B, FMT, ...)              \
+#define TP_BASE_SCALAR(COND, COND_STR, VAL_A, VAL_B, FMT, ...)                 \
     do {                                                                       \
-        struct test_context *ctx = (struct test_context *)T;                   \
         if (!(COND)) {                                                         \
-            snprintf(ctx->err_msg, TP_MAX_MSG_SIZE,                            \
+            snprintf(TP_test_context.err_msg, TP_MAX_MSG_SIZE,                 \
                      "%s:%d: assertion failed: '%s'. Values: " FMT ", " FMT,   \
                      __FILE__, __LINE__, COND_STR, VAL_A, VAL_B);              \
             __VA_ARGS__;                                                       \
-            longjmp(ctx->env, 1);                                              \
+            longjmp(TP_test_context.env, 1);                                   \
         }                                                                      \
     } while (0)
 
-#define TP_ASSERT_MEM_EQ(T, BUF_A, BUF_B, SIZE, ...)                           \
+#define TP_ASSERT_MEM_EQ(BUF_A, BUF_B, SIZE, ...)                              \
     do {                                                                       \
-        struct test_context *ctx = (struct test_context *)T;                   \
         if (memcmp(BUF_A, BUF_B, SIZE) != 0) {                                 \
             size_t first_diff = 0;                                             \
             for (size_t i = 0; i < SIZE; i++) {                                \
@@ -53,23 +52,23 @@ struct test_context {
                     break;                                                     \
                 }                                                              \
             }                                                                  \
-            snprintf(ctx->err_msg, TP_MAX_MSG_SIZE,                            \
+            snprintf(TP_test_context.err_msg, TP_MAX_MSG_SIZE,                 \
                      "%s:%d: assertion failed: buffers are not equal."         \
                      " First difference at [%zu]: 0x%.2x - 0x%.2x",            \
                      __FILE__, __LINE__, first_diff,                           \
                      ((uint8_t *)(BUF_A))[first_diff],                         \
                      ((uint8_t *)(BUF_B))[first_diff]);                        \
             __VA_ARGS__;                                                       \
-            longjmp(ctx->env, 1);                                              \
+            longjmp(TP_test_context.env, 1);                                   \
         }                                                                      \
     } while (0)
 
-#define TP_ASSERT_EQ(T, VAL_A, VAL_B, FMT, ...)                                \
-    TP_BASE_SCALAR(T, (VAL_A) == (VAL_B), #VAL_A " == " #VAL_B, VAL_A, VAL_B,  \
+#define TP_ASSERT_EQ(VAL_A, VAL_B, FMT, ...)                                   \
+    TP_BASE_SCALAR((VAL_A) == (VAL_B), #VAL_A " == " #VAL_B, VAL_A, VAL_B,     \
                    FMT, __VA_ARGS__)
 
-#define TP_ASSERT_NE(T, VAL_A, VAL_B, FMT, ...)                                \
-    TP_BASE_SCALAR(T, (VAL_A) != (VAL_B), #VAL_A " != " #VAL_B, VAL_A, VAL_B,  \
+#define TP_ASSERT_NE(VAL_A, VAL_B, FMT, ...)                                   \
+    TP_BASE_SCALAR((VAL_A) != (VAL_B), #VAL_A " != " #VAL_B, VAL_A, VAL_B,     \
                    FMT, __VA_ARGS__)
 
 #endif // TESTPREFIX_H_
