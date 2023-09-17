@@ -1,26 +1,26 @@
 [ TEST ] 0 test_suite1_nok_eq_macro_defines
-[ FAIL ] 0 |  | test.c:98: assertion failed: 'AA == BB'. Values: 0xa9, 0xffffec78
+[ FAIL ] 0 |  | test.c:82: assertion failed: 'AA == BB'. Values: 0xa9, 0xffffec78
 [ TEST ] 1 test_suite1_nok_eq_macro_literals
-[ FAIL ] 1 |  | test.c:89: assertion failed: '5 == 100'. Values: 5, 100
+[ FAIL ] 1 |  | test.c:75: assertion failed: '5 == 100'. Values: 5, 100
 [ TEST ] 2 test_suite1_nok_eq_macro_vars
-[ FAIL ] 2 |  | test.c:82: assertion failed: 'x == y'. Values: 5, 3
+[ FAIL ] 2 |  | test.c:70: assertion failed: 'x == y'. Values: 5, 3
 [ TEST ] 3 test_suite1_nok_in_setup
-[ FAIL ] 3 |  | test.c:53: assertion failed: '1 == 4'
+[ FAIL ] 3 |  | test.c:45: assertion failed: '1 == 4'
 [ TEST ] 4 test_suite1_nok_integer_comparison
-[ FAIL ] 4 |  | test.c:15: assertion failed: '1 == 2'
+[ FAIL ] 4 |  | test.c:14: assertion failed: '1 == 2'
 [ TEST ] 5 test_suite1_nok_mem_comparison
-[ FAIL ] 5 |  | test.c:21: assertion failed: 'memcmp("abcd", "efghi", sizeof("abcd")) == 0'
+[ FAIL ] 5 |  | test.c:19: assertion failed: 'memcmp("abcd", "efghi", sizeof("abcd")) == 0'
 [ TEST ] 6 test_suite1_nok_mem_eq
-[ FAIL ] 6 |  | test.c:150: assertion failed: buffers are not equal. First difference at [2]: 0x03 - 0x21
+[ FAIL ] 6 |  | test.c:124: assertion failed: buffers are not equal. First difference at [2]: 0x03 - 0x21
 [ TEST ] 7 test_suite1_nok_ne_macro_defines
 extra print
-[ FAIL ] 7 |  | test.c:123: assertion failed: 'CC != DD'. Values: 0x3c, 0x3c
+[ FAIL ] 7 |  | test.c:101: assertion failed: 'CC != DD'. Values: 0x3c, 0x3c
 [ TEST ] 8 test_suite1_nok_ne_macro_literals
-[ FAIL ] 8 |  | test.c:114: assertion failed: '125 != 125'. Values: 125, 125
+[ FAIL ] 8 |  | test.c:94: assertion failed: '125 != 125'. Values: 125, 125
 [ TEST ] 9 test_suite1_nok_ne_macro_vars
-[ FAIL ] 9 |  | test.c:107: assertion failed: 'x != y'. Values: -500, -500
+[ FAIL ] 9 |  | test.c:89: assertion failed: 'x != y'. Values: -500, -500
 [ TEST ] 10 test_suite1_nok_with_free
-Released[ FAIL ] 10 |  | test.c:36: assertion failed: '1 == 2'
+Released[ FAIL ] 10 |  | test.c:32: assertion failed: '1 == 2'
 [ TEST ] 11 test_suite1_ok_eq_macro
 [ PASS ] 11 | 
 [ TEST ] 12 test_suite1_ok_integer_comparison
@@ -32,7 +32,7 @@ Released[ FAIL ] 10 |  | test.c:36: assertion failed: '1 == 2'
 [ TEST ] 15 test_suite1_ok_with_setup
 [ PASS ] 15 | 
 [ TEST ] 16 test_suite1_skip
-[ SKIP ] 16 | 
+[ SKIP ] 16 |  | testing skip
 
   Total: 17
  Passed: 5

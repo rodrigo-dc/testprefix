@@ -18,23 +18,20 @@ Test library with function discovery in C.
 
 ### Write a test
 
-Include `testprefix.h`. Write a function that returns an `int`.
-Name your function according to the prefix you want to use. The default is `test_`.
+Include `testprefix.h` and create a function named according to the prefix
+you want to use. The default prefix is `test_`.
 Make assertions using `TP_ASSERT` macro.
 
 ```c
-int test_suite1_nok_integer_comparison()
+void test_suite1_nok_integer_comparison()
 {
     TP_ASSERT(1 == 2);
-    return 0;
 }
 ```
 
-Return `0` to indicate the test has passed.
-Return other values to indicate the test was skipped.
 The test fails in case of any assertion failure.
 
-You can call `TP_ASSERT` from the inside of a setup-like function.
+You can call any assert macro from the inside of a setup-like function.
 #### Releasing resources
 
 If ``TP_ASSERT`` fails, the test is aborted. To avoid resource leaks, ``TP_ASSERT``
