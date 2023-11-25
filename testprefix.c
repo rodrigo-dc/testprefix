@@ -689,6 +689,9 @@ static int parse_args(int argc, char *argv[], struct cli_args *args)
 //
 // Test execution
 //
+
+static void default_failure_handler(void *ptr) { (void)ptr; }
+
 struct TP_test_context TP_context;
 static int run_tests(int test_count, struct test_info *tests,
                      struct test_reporter *r)
@@ -702,6 +705,8 @@ static int run_tests(int test_count, struct test_info *tests,
     int ret_code = 0;
     for (int i = 0; i < test_count; i++) {
         TP_context.result.message[0] = '\0';
+        TP_context.fail_handler = default_failure_handler;
+        TP_context.fail_handler_arg = NULL;
 
         clock_gettime(CLOCK_REALTIME, &TP_context.result.begin);
         ret = setjmp(TP_context.env);

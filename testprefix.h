@@ -24,9 +24,13 @@ struct TP_test_result {
     char message[TP_MAX_MSG_SIZE];
 };
 
+typedef void (*TP_failure_handler)(void *);
+
 struct TP_test_context {
     jmp_buf env;
     struct TP_test_result result;
+    TP_failure_handler fail_handler;
+    void *fail_handler_arg;
 };
 
 extern struct TP_test_context TP_context;
@@ -38,6 +42,14 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
 #define TP_STR(X) #X
 #define TP_STR_VAL(X) TP_STR(X)
 #define TP_LINE_STR TP_STR_VAL(__LINE__)
+
+#define SET_TEST_FAILURE_HANDLER(HANDLER, HANDLER_ARG)                         \
+    do {                                                                       \
+        if ((HANDLER) != NULL) {                                               \
+            TP_context.fail_handler = HANDLER;                                 \
+            TP_context.fail_handler_arg = HANDLER_ARG;                         \
+        }                                                                      \
+    } while (0)
 
 #define SKIP(...)                                                              \
     do {                                                                       \
@@ -55,6 +67,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
                            __FILE__ ":" TP_LINE_STR                            \
                                     ": assertion failed: '" COND_STR           \
                                     "' - " __VA_ARGS__);                       \
+            TP_context.fail_handler(TP_context.fail_handler_arg);              \
             longjmp(TP_context.env, 1);                                        \
         }                                                                      \
     } while (0)
@@ -72,6 +85,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
             const size_t remaining_space = TP_MAX_MSG_SIZE - message_len;      \
             (void)snprintf(&TP_context.result.message[message_len],            \
                            remaining_space, " " __VA_ARGS__);                  \
+            TP_context.fail_handler(TP_context.fail_handler_arg);              \
             longjmp(TP_context.env, 1);                                        \
         }                                                                      \
     } while (0)
@@ -94,6 +108,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
             (void)snprintf(&TP_context.result.message[message_len],            \
                            remaining_space, " - Values: %s, %s", a_content,    \
                            b_content);                                         \
+            TP_context.fail_handler(TP_context.fail_handler_arg);              \
             longjmp(TP_context.env, 1);                                        \
         }                                                                      \
     } while (0)
