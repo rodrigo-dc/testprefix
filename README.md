@@ -2,7 +2,7 @@
 
 Test library with function discovery in C.
 
-* Functions whose names start with a certain prefix are automatically
+* Functions with names starting with a certain prefix are automatically
   executed as tests functions. The default prefix is `test_`.
 * No special test declaration or registration is needed.
 * Console or TAP report.
@@ -11,83 +11,131 @@ Test library with function discovery in C.
 
 * The test application must be a not-stripped ELF executable.
 
-## Writing tests
+## Creating a simple test
 
-Include `testprefix.h` and create a function named according to the prefix
-you want to use. Then, use any of the assertion macros.
+Create a test file, for example, `test_foo.c`. In the test file, include
+`testprefix.h` and create a test function. The name of the test function
+must start with the prefix you want to use. For the example below, we will
+use the default prefix, `test_`.
 
 ```c
+#include "testprefix.h"
+
 void test_suite1_ok_integer_comparison()
 {
     ASSERT_INT_NE(1 == 2, "they are different");
 }
 ```
 
-### Assertion macros
+[Here](#Assertion-macros) you can find the assertion macros currently available.
+
+Now you need to create an ELF executable from `testprefix.c`, the test file and
+your source code.
+
+> [!NOTE]
+> `testprefix.c` defines a `main()` function, so you need to keep your original
+> `main()` out of the test binary.
+
+```shell
+gcc -std=gnu99 testprefix.c test_suite1.c source1.c -o test_app
+```
+
+Execute the test application.
+
+```shell
+./test_app
+```
+
+## Assertion macros
 
 ```c
+// Boolean assertions
 ASSERT_TRUE(COND, ...)
-```
-```c
 ASSERT_FALSE(COND, ...)
-```
-```c
+// Compare unsigned values
 ASSERT_UINT_EQ(VAL1, VAL2, ...)
-```
-```c
 ASSERT_UINT_NE(VAL1, VAL2, ...)
-```
-```c
+// Compare signed values
 ASSERT_INT_EQ(VAL1, VAL2, ...)
-```
-```c
 ASSERT_INT_NE(VAL1, VAL2, ...)
-```
-```c
+// Compare pointer values
 ASSERT_PTR_EQ(PTR1, PTR2, ...)
-```
-```c
 ASSERT_PTR_NE(PTR1, PTR2, ...)
-```
-```c
+// Compare the content of null-terminated strings
 ASSERT_STR_EQ(STR1, STR2, ...)
-```
-```c
 ASSERT_STR_NE(STR1, STR2, ...)
-```
-```c
+// Compare memory regions
 ASSERT_MEM_EQ(PTR1, PTR2, SIZE, ...)
-```
-```c
 ASSERT_MEM_NE(PTR1, PTR2, SIZE, ...)
 ```
 
-All assertion macros can take a message as argument, which will be included
-in the error message in case of assertion failure.
+> [!TIP]
+> All assertion macros can take a message as argument, which will be included
+> in the error message in case of assertion failure.
+> ```c
+> ASSERT_TRUE(false, "iteration: %u", i);
+> ```
 
-Example:
-
-```c
-ASSERT_TRUE(false, "iteration: %u", i);
-```
-
-### Skipping tests
+## Skipping tests
 
 To skip a test, use the macro `SKIP(...)` before any assertion macro.
 Optionally, a string can be passed to `SKIP()`. This string will be part
 of the report.
 
-Example:
-
 ```c
 SKIP("Skipped for some reason.");
 ```
 
-### Releasing resources
+## Releasing resources on test failures
 
-Not implemented yet.
+When an assertion fails, the test is aborted immediately. To avoid resource
+leaks, it's possible to register a failure handler for a specific test.
+The failure handler is a function with following format:
 
-### Global setup/teardown functions
+```c
+void handler_function(void *);
+```
+
+To set the failure handler, use the macro `SET_TEST_FAILURE_HANDLER(HANDLER, HANDLER_ARG)`.
+
+When `HANDLER` is invoked, `HANDLER_ARG` is passed as argument. Here is
+an example where `HANDLER_ARG` is a `FILE *`.
+
+```c
+// Custom function that closes a FILE
+void file_closer(void *ptr)
+{
+    FILE *stream = (FILE *)ptr;
+    if (stream != NULL) {
+        (void)fclose(stream);
+    }
+}
+
+void test_something()
+{
+    FILE *stream = tmpfile();
+    ASSERT_PTR_NE(stream, NULL);
+
+    SET_TEST_FAILURE_HANDLER(file_closer, stream);
+    ASSERT_TRUE(false);
+}
+```
+
+If you just want to deallocate one pointer, you can simply use `free` as
+your error handler.
+
+```c
+void test_something_else()
+{
+    uint8_t *buf = malloc(10);
+
+    SET_TEST_FAILURE_HANDLER(free, buf);
+    // If this fails, `free` will be invoked with `buf` as argument.
+    ASSERT_TRUE(...);
+}
+```
+
+## Global setup/teardown functions
 
 Optionally, global setup and teardown functions can be defined.
 
@@ -107,17 +155,17 @@ The global teardown function is executed once, after the last test.
 void TP_global_teardown()
 ```
 
-## Compiling
-
-Copy `testprefix.c` and `testprefix.h` to your project. Build a test
-application from `testprefix.c` and the other test sources.
+## Build issues
 
 Some POSIX-specific functions are used in `testprefix.c`. If possible,
 specify `-std=gnu99` to build it cleanly.
 
-## Running
+## CLI interface
 
-Command line options:
+When executed with no arguments, the test application executes all tests
+starting with `test_` and prints the results to the standard output.
+
+The following options are available to change this default behavior.
 
 ```
 Usage: ./test_app [-p PREFIX] [-l | -h | -o FILE]
@@ -144,4 +192,6 @@ Examples:
 
 ## Credits
 
-The new API (2.x) is heavily based on the feedback from @kholeg.
+I would like to thank [@kholeg](https://github.com/KhOleg). Most of the changes
+in the current API were based on the feedback from him.
+

@@ -1,5 +1,6 @@
 // Copyright 2021 Rodrigo Dias Correa. See LICENSE.
 #include "testprefix.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -176,8 +177,8 @@ void test_fail_assert_int_ne_var()
 
 void test_fail_assert_int_ne_define()
 {
-#define A -500
-#define B -500
+#define A (-500)
+#define B (-500)
     ASSERT_INT_NE(A, B, "check error messages with preprocessor definitions");
 #undef A
 #undef B
@@ -377,4 +378,36 @@ void test_skip_without_reason()
 {
     SKIP();
     ASSERT_TRUE(0, "this would fail, but we are skipping the test");
+}
+
+void test_fail_with_free()
+{
+    uint8_t *buf = malloc(10);
+
+    SET_TEST_FAILURE_HANDLER(free, buf);
+    ASSERT_TRUE(false);
+}
+
+void file_closer(void *ptr)
+{
+    FILE *stream = (FILE *)ptr;
+    if (stream != NULL) {
+        (void)fclose(stream);
+    }
+}
+
+void test_fail_with_custom_func()
+{
+    FILE *stream = tmpfile();
+    ASSERT_PTR_NE(stream, NULL);
+
+    SET_TEST_FAILURE_HANDLER(file_closer, stream);
+    ASSERT_TRUE(false);
+}
+
+void test_fail_with_null_handler()
+{
+    // NULL failure handler has no effect
+    SET_TEST_FAILURE_HANDLER(NULL, NULL);
+    ASSERT_TRUE(false);
 }
