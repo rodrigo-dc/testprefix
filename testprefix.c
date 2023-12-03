@@ -308,10 +308,11 @@ static int console_test_begin_cb(int index, const char *name, void *private)
 {
     (void)private;
 
+    printf("+------+\n");
     if (isatty(STDOUT_FILENO)) {
-        printf("[ TEST ] %d " FG_BOLD " %s " TERM_RESET "\n", index, name);
+        printf("| TEST | (%d)" FG_BOLD " %s " TERM_RESET "\n", index, name);
     } else {
-        printf("[ TEST ] %d %s\n", index, name);
+        printf("| TEST | (%d) %s\n", index, name);
     }
     return 0;
 }
@@ -336,7 +337,7 @@ static int console_test_end_cb(int index, const char *name,
         result_string = RED_CONST("FAIL");
     }
 
-    printf("[ %s ] %d | %ld ms", result_string, index,
+    printf("| %s | (%d) %ld ms", result_string, index,
            elapsed_time_ms(&result->begin, &result->end));
 
     if (result->message[0] != '\0') {
@@ -351,10 +352,12 @@ static int console_finish_cb(struct test_reporter *self)
 {
     struct console_private *cp = (struct console_private *)self->private;
 
-    printf("\n%s: %d", BOLD_CONST("  Total"), cp->test_count);
-    printf("\n%s: %d", BOLD_CONST(" Passed"), cp->success_counter);
-    printf("\n%s: %d", BOLD_CONST(" Failed"), cp->failure_counter);
-    printf("\n%s: %d\n", BOLD_CONST("Skipped"), cp->skip_counter);
+    printf("'------+-----------------\n");
+    printf("       | %s: %d\n", BOLD_CONST("  Total"), cp->test_count);
+    printf("       | %s: %d\n", BOLD_CONST(" Passed"), cp->success_counter);
+    printf("       | %s: %d\n", BOLD_CONST(" Failed"), cp->failure_counter);
+    printf("       | %s: %d\n", BOLD_CONST("Skipped"), cp->skip_counter);
+    printf("       '-----------------\n\n");
 
     return 0;
 }
