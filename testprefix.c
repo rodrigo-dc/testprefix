@@ -251,13 +251,15 @@ struct test_reporter {
     // Called once, before any test execution.
     int (*init_cb)(struct test_reporter *self, int test_count);
     // Called before each test execution.
-    int (*test_begin_cb)(int index, const char *name, void *private);
+    void (*test_begin_cb)(int index, const char *name, void *private);
     // Called after each test execution.
-    int (*test_end_cb)(int index, const char *name,
-                       const struct TP_test_result *result, void *private);
+    void (*test_end_cb)(int index, const char *name,
+                        const struct TP_test_result *result, void *private);
     // Called once, after all test executions. Any allocated resource
     // must be released here.
-    int (*finish_cb)(struct test_reporter *self);
+    void (*finish_cb)(struct test_reporter *self);
+    // Next reporter in the chain.
+    struct test_reporter *next;
 };
 
 //
@@ -304,7 +306,7 @@ static int console_init_cb(struct test_reporter *self, int test_count)
     return 0;
 }
 
-static int console_test_begin_cb(int index, const char *name, void *private)
+static void console_test_begin_cb(int index, const char *name, void *private)
 {
     (void)private;
 
@@ -314,12 +316,11 @@ static int console_test_begin_cb(int index, const char *name, void *private)
     } else {
         printf("| TEST | (%d) %s\n", index, name);
     }
-    return 0;
 }
 
-static int console_test_end_cb(int index, const char *name,
-                               const struct TP_test_result *result,
-                               void *private)
+static void console_test_end_cb(int index, const char *name,
+                                const struct TP_test_result *result,
+                                void *private)
 {
     (void)name;
 
@@ -344,11 +345,9 @@ static int console_test_end_cb(int index, const char *name,
         printf(" | %s", result->message);
     }
     printf("\n");
-
-    return 0;
 }
 
-static int console_finish_cb(struct test_reporter *self)
+static void console_finish_cb(struct test_reporter *self)
 {
     struct console_private *cp = (struct console_private *)self->private;
 
@@ -358,8 +357,6 @@ static int console_finish_cb(struct test_reporter *self)
     printf("       | %s: %d\n", BOLD_CONST(" Failed"), cp->failure_counter);
     printf("       | %s: %d\n", BOLD_CONST("Skipped"), cp->skip_counter);
     printf("       '-----------------\n\n");
-
-    return 0;
 }
 
 static void setup_console_reporter(struct console_private *priv,
@@ -402,13 +399,11 @@ static int tap_init_cb(struct test_reporter *self, int test_count)
     return 0;
 }
 
-static int tap_test_begin_cb(int index, const char *name, void *private)
+static void tap_test_begin_cb(int index, const char *name, void *private)
 {
     (void)index;
     (void)name;
     (void)private;
-
-    return 0;
 }
 
 static void replace_single_quotes(char *str)
@@ -420,8 +415,8 @@ static void replace_single_quotes(char *str)
     }
 }
 
-static int tap_test_end_cb(int index, const char *name,
-                           const struct TP_test_result *result, void *private)
+static void tap_test_end_cb(int index, const char *name,
+                            const struct TP_test_result *result, void *private)
 {
     struct tap_private *tp = (struct tap_private *)private;
 
@@ -443,19 +438,15 @@ static int tap_test_end_cb(int index, const char *name,
         dprintf(tp->fd, "  ...");
     }
     dprintf(tp->fd, "\n");
-
-    return 0;
 }
 
-static int tap_finish_cb(struct test_reporter *self)
+static void tap_finish_cb(struct test_reporter *self)
 {
     struct tap_private *tp = (struct tap_private *)self->private;
     if (tp->fd > 0) {
         close(tp->fd);
         tp->fd = -1;
     }
-
-    return 0;
 }
 
 static void setup_tap_reporter(const char *path, struct tap_private *priv,
@@ -695,11 +686,55 @@ static int parse_args(int argc, char *argv[], struct cli_args *args)
 
 static void default_failure_handler(void *ptr) { (void)ptr; }
 
+// These four `call_...` functions invoke a chain of functions. There is one
+// `call..` per function in the test reporter interface.
+
+static int call_init_cb(struct test_reporter *r, int test_count)
+{
+    int ret = 0;
+    while (r != NULL) {
+        ret = r->init_cb(r, test_count);
+        if (ret != 0) {
+            return ret;
+        }
+        r = r->next;
+    }
+
+    return 0;
+}
+
+static void call_test_begin_cb(struct test_reporter *r, int index,
+                               const char *name)
+{
+    while (r != NULL) {
+        r->test_begin_cb(index, name, r->private);
+        r = r->next;
+    }
+}
+
+static void call_test_end_cb(struct test_reporter *r, int index,
+                             const char *name,
+                             const struct TP_test_result *result)
+{
+    while (r != NULL) {
+        r->test_end_cb(index, name, result, r->private);
+        r = r->next;
+    }
+}
+
+static void call_finish_cb(struct test_reporter *r)
+{
+    while (r != NULL) {
+        r->finish_cb(r);
+        r = r->next;
+    }
+}
+
 struct TP_test_context TP_context;
 static int run_tests(int test_count, struct test_info *tests,
                      struct test_reporter *r)
 {
-    int ret = r->init_cb(r, test_count);
+    int ret = call_init_cb(r, test_count);
     if (ret != 0) {
         dprintf(STDERR_FILENO, "Error. Unable to initialize reporter.\n");
         return -1;
@@ -714,7 +749,7 @@ static int run_tests(int test_count, struct test_info *tests,
         clock_gettime(CLOCK_REALTIME, &TP_context.result.begin);
         ret = setjmp(TP_context.env);
         if (ret == 0) {
-            r->test_begin_cb(i, tests[i].name, r->private);
+            call_test_begin_cb(r, i, tests[i].name);
             tests[i].func();
             TP_context.result.status = TP_TEST_PASSED;
         } else {
@@ -723,9 +758,9 @@ static int run_tests(int test_count, struct test_info *tests,
             }
         }
         clock_gettime(CLOCK_REALTIME, &TP_context.result.end);
-        r->test_end_cb(i, tests[i].name, &TP_context.result, r->private);
+        call_test_end_cb(r, i, tests[i].name, &TP_context.result);
     }
-    r->finish_cb(r);
+    call_finish_cb(r);
 
     return ret_code;
 }
@@ -769,17 +804,21 @@ int main(int argc, char *argv[])
         print_test_names(test_count, tests);
         ret = 0;
     } else {
-        struct test_reporter reporter;
+        struct test_reporter console_reporter = {0};
         struct console_private console_priv;
+        setup_console_reporter(&console_priv, &console_reporter);
+
+        struct test_reporter tap_reporter = {0};
         struct tap_private tap_priv;
         if (strlen(args.output_path) > 0) {
-            setup_tap_reporter(args.output_path, &tap_priv, &reporter);
-        } else {
-            setup_console_reporter(&console_priv, &reporter);
+            setup_tap_reporter(args.output_path, &tap_priv, &tap_reporter);
+            // Chain the reporters so we can have multiple active reporters
+            console_reporter.next = &tap_reporter;
         }
+
         ret = TP_global_setup();
         if (ret == 0) {
-            ret = run_tests(test_count, tests, &reporter);
+            ret = run_tests(test_count, tests, &console_reporter);
             TP_global_teardown();
         }
     }
