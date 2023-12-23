@@ -35,7 +35,8 @@ struct TP_test_context {
 
 extern struct TP_test_context TP_context;
 
-// Internal function, not part of the public API.
+// Internal functions, not part of the public API.
+void TP_send_message(unsigned int level, const char *fmt, ...);
 void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
                       size_t mem_size);
 
@@ -54,8 +55,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
 #define SKIP(...)                                                              \
     do {                                                                       \
         TP_context.result.status = TP_TEST_SKIPPED;                            \
-        (void)snprintf(TP_context.result.message, TP_MAX_MSG_SIZE,             \
-                       " " __VA_ARGS__);                                       \
+        TP_send_message(0, "" __VA_ARGS__);                                    \
         longjmp(TP_context.env, 1);                                            \
     } while (0)
 
@@ -63,11 +63,9 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     do {                                                                       \
         if (!(COND)) {                                                         \
             TP_context.result.status = TP_TEST_FAILED;                         \
-            (void)snprintf(TP_context.result.message, TP_MAX_MSG_SIZE,         \
-                           __FILE__ ":" TP_LINE_STR                            \
-                                    ": assertion failed: '" COND_STR           \
-                                    "' - " __VA_ARGS__);                       \
-            TP_context.fail_handler(TP_context.fail_handler_arg);              \
+            TP_send_message(0, __FILE__ ":" TP_LINE_STR                        \
+                                        ": assertion failed: '" COND_STR "'"); \
+            TP_send_message(1, "" __VA_ARGS__);                                \
             longjmp(TP_context.env, 1);                                        \
         }                                                                      \
     } while (0)
@@ -76,39 +74,28 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     do {                                                                       \
         if (!(COND)) {                                                         \
             TP_context.result.status = TP_TEST_FAILED;                         \
-            (void)snprintf(TP_context.result.message, TP_MAX_MSG_SIZE,         \
-                           __FILE__ ":" TP_LINE_STR                            \
-                                    ": assertion failed: '" COND_STR           \
-                                    "'. Values: " FMT ", " FMT ".",            \
-                           (TYPE)VAL_A, (TYPE)VAL_B);                          \
-            const size_t message_len = strlen(TP_context.result.message);      \
-            const size_t remaining_space = TP_MAX_MSG_SIZE - message_len;      \
-            (void)snprintf(&TP_context.result.message[message_len],            \
-                           remaining_space, " " __VA_ARGS__);                  \
-            TP_context.fail_handler(TP_context.fail_handler_arg);              \
+            TP_send_message(0, __FILE__ ":" TP_LINE_STR                        \
+                                        ": assertion failed: '" COND_STR "'"); \
+            TP_send_message(1, "Values: " FMT ", " FMT, (TYPE)VAL_A,           \
+                            (TYPE)VAL_B);                                      \
+            TP_send_message(1, "" __VA_ARGS__);                                \
             longjmp(TP_context.env, 1);                                        \
         }                                                                      \
     } while (0)
 
-#define TP_BASE_MEM_COMPARISON(COND, BUF_A, BUF_B, SIZE, ...)                  \
+#define TP_BASE_MEM_COMPARISON(COND, COND_STR, BUF_A, BUF_B, SIZE, ...)        \
     do {                                                                       \
         if (!(COND)) {                                                         \
-            char a_content[TP_MAX_MSG_SIZE / 4] = {0};                         \
-            char b_content[TP_MAX_MSG_SIZE / 4] = {0};                         \
+            char a_content[TP_MAX_MSG_SIZE / 2] = {0};                         \
+            char b_content[TP_MAX_MSG_SIZE / 2] = {0};                         \
             TP_mem_to_string(a_content, sizeof(a_content), BUF_A, SIZE);       \
             TP_mem_to_string(b_content, sizeof(b_content), BUF_B, SIZE);       \
             TP_context.result.status = TP_TEST_FAILED;                         \
-            (void)snprintf(                                                    \
-                TP_context.result.message, TP_MAX_MSG_SIZE,                    \
-                __FILE__                                                       \
-                ":" TP_LINE_STR                                                \
-                ": assertion failed: buffers are not equal." __VA_ARGS__);     \
-            const size_t message_len = strlen(TP_context.result.message);      \
-            const size_t remaining_space = TP_MAX_MSG_SIZE - message_len;      \
-            (void)snprintf(&TP_context.result.message[message_len],            \
-                           remaining_space, " - Values: %s, %s", a_content,    \
-                           b_content);                                         \
-            TP_context.fail_handler(TP_context.fail_handler_arg);              \
+            TP_send_message(0, __FILE__ ":" TP_LINE_STR                        \
+                                        ": assertion failed: '" COND_STR "'"); \
+            TP_send_message(1, "First: %s", a_content);                        \
+            TP_send_message(1, "Second: %s", b_content);                       \
+            TP_send_message(1, "" __VA_ARGS__);                                \
             longjmp(TP_context.env, 1);                                        \
         }                                                                      \
     } while (0)
@@ -153,11 +140,13 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
                        "'%s'", const char *, __VA_ARGS__)
 
 #define ASSERT_MEM_EQ(PTR1, PTR2, SIZE, ...)                                   \
-    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) == 0, PTR1, PTR2, SIZE,    \
-                           __VA_ARGS__)
+    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) == 0,                      \
+                           "memcmp(" #PTR1 ", " #PTR2 ", " #SIZE ") == 0",     \
+                           PTR1, PTR2, SIZE, __VA_ARGS__)
 
 #define ASSERT_MEM_NE(PTR1, PTR2, SIZE, ...)                                   \
-    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) != 0, PTR1, PTR2, SIZE,    \
-                           __VA_ARGS__)
+    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) != 0,                      \
+                           "memcmp(" #PTR1 ", " #PTR2 ", " #SIZE ") != 0",     \
+                           PTR1, PTR2, SIZE, __VA_ARGS__)
 
 #endif // TESTPREFIX_H_

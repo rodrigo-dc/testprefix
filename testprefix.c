@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <setjmp.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -252,6 +253,8 @@ struct test_reporter {
     int (*init_cb)(struct test_reporter *self, int test_count);
     // Called before each test execution.
     void (*test_begin_cb)(int index, const char *name, void *private);
+    // Called when there is a new test message
+    void (*test_message_cb)(unsigned int level, const char *msg, void *private);
     // Called after each test execution.
     void (*test_end_cb)(int index, const char *name,
                         const struct TP_test_result *result, void *private);
@@ -318,6 +321,21 @@ static void console_test_begin_cb(int index, const char *name, void *private)
     }
 }
 
+void console_test_message_cb(unsigned int level, const char *msg, void *private)
+{
+    (void)private;
+
+    if (msg[0] != '\0') {
+        (void)fputs("|      | ", stdout);
+        // Two spacess added for each level
+        while (level > 0) {
+            (void)fputs("  ", stdout);
+            level--;
+        }
+        printf("  %s\n", msg);
+    }
+}
+
 static void console_test_end_cb(int index, const char *name,
                                 const struct TP_test_result *result,
                                 void *private)
@@ -341,9 +359,6 @@ static void console_test_end_cb(int index, const char *name,
     printf("| %s | (%d) %ld ms", result_string, index,
            elapsed_time_ms(&result->begin, &result->end));
 
-    if (result->message[0] != '\0') {
-        printf(" | %s", result->message);
-    }
     printf("\n");
 }
 
@@ -359,25 +374,22 @@ static void console_finish_cb(struct test_reporter *self)
     printf("       '-----------------\n\n");
 }
 
-static void setup_console_reporter(struct console_private *priv,
-                                   struct test_reporter *r)
-{
-    memset(r, 0, sizeof(struct test_reporter));
-    memset(priv, 0, sizeof(struct console_private));
-
-    r->init_cb = console_init_cb;
-    r->test_begin_cb = console_test_begin_cb;
-    r->test_end_cb = console_test_end_cb;
-    r->finish_cb = console_finish_cb;
-
-    r->private = priv;
-}
-
+struct console_private reporter_priv;
+struct test_reporter reporter = {.private = &reporter_priv,
+                                 .init_cb = &console_init_cb,
+                                 .test_begin_cb = &console_test_begin_cb,
+                                 .test_message_cb = &console_test_message_cb,
+                                 .test_end_cb = &console_test_end_cb,
+                                 .finish_cb = &console_finish_cb};
 //
 // TAP Reporter
 //
 struct tap_private {
+    // Descriptor associated with the log file
     int fd;
+    // All messages sent by the current test (joined with \n)
+    char test_messages[TP_MAX_MSG_SIZE];
+    // Log file path
     char path[STRING_SIZE_MAX];
 };
 
@@ -403,7 +415,10 @@ static void tap_test_begin_cb(int index, const char *name, void *private)
 {
     (void)index;
     (void)name;
-    (void)private;
+
+    struct tap_private *tp = (struct tap_private *)private;
+
+    tp->test_messages[0] = 0;
 }
 
 static void replace_single_quotes(char *str)
@@ -412,6 +427,37 @@ static void replace_single_quotes(char *str)
         if (*str == '\'') {
             *str = '`';
         }
+    }
+}
+
+void tap_test_message_cb(unsigned int level, const char *msg, void *private)
+{
+    struct tap_private *tp = (struct tap_private *)private;
+
+    size_t max_len = sizeof(tp->test_messages) - 1;
+    size_t current_len = strnlen(tp->test_messages, max_len);
+    size_t available = max_len - current_len;
+
+    // Do nothing for empty messages
+    if (msg[0] == '\0') {
+        return;
+    }
+
+    // Start with a new line and two spaces
+    if (current_len > 0 && available >= 3) {
+        strncat(tp->test_messages, "\n  ", available);
+        available -= 3;
+    }
+
+    // Indent adding 2 spaces per level
+    while (level > 0 && available >= 2) {
+        strncat(tp->test_messages, "  ", available);
+        available -= 2;
+        level--;
+    }
+
+    if (available > 0) {
+        strncat(tp->test_messages, msg, available);
     }
 }
 
@@ -426,15 +472,12 @@ static void tap_test_end_cb(int index, const char *name,
 
     dprintf(tp->fd, "ok %d %s", index + 1, name);
     if (result->status == TP_TEST_SKIPPED) {
-        dprintf(tp->fd, " # SKIP %s", result->message);
+        dprintf(tp->fd, " # SKIP %s", tp->test_messages);
     } else if (result->status == TP_TEST_FAILED) {
-        char yaml_msg[sizeof(result->message)] = {0};
-
-        strncpy(yaml_msg, result->message, sizeof(yaml_msg) - 1);
-        replace_single_quotes(yaml_msg);
+        replace_single_quotes(tp->test_messages);
 
         dprintf(tp->fd, "\n  ---\n");
-        dprintf(tp->fd, "  message: '%s'\n", yaml_msg);
+        dprintf(tp->fd, "  message: '\n  %s\n  '\n", tp->test_messages);
         dprintf(tp->fd, "  ...");
     }
     dprintf(tp->fd, "\n");
@@ -455,10 +498,11 @@ static void setup_tap_reporter(const char *path, struct tap_private *priv,
     memset(r, 0, sizeof(struct test_reporter));
     memset(priv, 0, sizeof(struct tap_private));
 
-    r->init_cb = tap_init_cb;
-    r->test_begin_cb = tap_test_begin_cb;
-    r->test_end_cb = tap_test_end_cb;
-    r->finish_cb = tap_finish_cb;
+    r->init_cb = &tap_init_cb;
+    r->test_begin_cb = &tap_test_begin_cb;
+    r->test_message_cb = &tap_test_message_cb;
+    r->test_end_cb = &tap_test_end_cb;
+    r->finish_cb = &tap_finish_cb;
 
     strncpy(priv->path, path, STRING_SIZE_MAX);
     r->private = priv;
@@ -603,34 +647,6 @@ static int find_tests(int fd, const char *prefix, struct test_info **tests)
 }
 
 //
-// Helper function used by assert macros
-//
-
-// Creates a null-terminated string with the hexadecimal representation of a
-// memory region. The maximum size of the string, including '\0', will be
-// 'str_max_size'.
-//
-// Example: { 0xa1, 0xb2, 0xc3 } => "a1b2c3"
-void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
-                      size_t mem_size)
-{
-    const uint8_t *mem_ptr = (const uint8_t *)mem;
-    const uint8_t *mem_end = mem_ptr + mem_size;
-
-    str[0] = 0;
-    for (; mem_ptr < mem_end; mem_ptr++) {
-        size_t str_i = strlen(str);
-        size_t remaining_space = str_max_size - str_i;
-
-        int ret = snprintf(&str[str_i], remaining_space, "%.2x", *mem_ptr);
-        if (ret < 0 || (size_t)ret >= remaining_space) {
-            // The string was truncated, time to stop.
-            break;
-        }
-    }
-}
-
-//
 // CLI arguments
 //
 struct cli_args {
@@ -689,13 +705,12 @@ static void default_failure_handler(void *ptr) { (void)ptr; }
 // These four `call_...` functions invoke a chain of functions. There is one
 // `call..` per function in the test reporter interface.
 
-static int call_init_cb(struct test_reporter *r, int test_count)
+static int call_init_cb(int test_count)
 {
-    int ret = 0;
+    struct test_reporter *r = &reporter;
     while (r != NULL) {
-        ret = r->init_cb(r, test_count);
-        if (ret != 0) {
-            return ret;
+        if (r->init_cb(r, test_count) != 0) {
+            return -1;
         }
         r = r->next;
     }
@@ -703,38 +718,89 @@ static int call_init_cb(struct test_reporter *r, int test_count)
     return 0;
 }
 
-static void call_test_begin_cb(struct test_reporter *r, int index,
-                               const char *name)
+static void call_test_begin_cb(int index, const char *name)
 {
+    struct test_reporter *r = &reporter;
     while (r != NULL) {
         r->test_begin_cb(index, name, r->private);
         r = r->next;
     }
 }
 
-static void call_test_end_cb(struct test_reporter *r, int index,
-                             const char *name,
+static void call_send_test_message_cb(unsigned int level, const char *message)
+{
+    struct test_reporter *r = &reporter;
+    while (r != NULL) {
+        r->test_message_cb(level, message, r->private);
+        r = r->next;
+    }
+}
+
+static void call_test_end_cb(int index, const char *name,
                              const struct TP_test_result *result)
 {
+    struct test_reporter *r = &reporter;
     while (r != NULL) {
         r->test_end_cb(index, name, result, r->private);
         r = r->next;
     }
 }
 
-static void call_finish_cb(struct test_reporter *r)
+static void call_finish_cb()
 {
+    struct test_reporter *r = &reporter;
     while (r != NULL) {
         r->finish_cb(r);
         r = r->next;
     }
 }
 
-struct TP_test_context TP_context;
-static int run_tests(int test_count, struct test_info *tests,
-                     struct test_reporter *r)
+//
+// Helper function used by assert macros
+//
+
+// Sends a new message to the test reporters
+void TP_send_message(unsigned int level, const char *fmt, ...)
 {
-    int ret = call_init_cb(r, test_count);
+    char message[TP_MAX_MSG_SIZE];
+
+    va_list ap;
+    va_start(ap, fmt);
+    (void)vsnprintf(message, sizeof(message), fmt, ap);
+    va_end(ap);
+
+    call_send_test_message_cb(level, message);
+}
+
+// Creates a null-terminated string with the hexadecimal representation of a
+// memory region. The maximum size of the string, including '\0', will be
+// 'str_max_size'.
+//
+// Example: { 0xa1, 0xb2, 0xc3 } => "a1b2c3"
+void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
+                      size_t mem_size)
+{
+    const uint8_t *mem_ptr = (const uint8_t *)mem;
+    const uint8_t *mem_end = mem_ptr + mem_size;
+
+    str[0] = 0;
+    for (; mem_ptr < mem_end; mem_ptr++) {
+        size_t str_i = strlen(str);
+        size_t remaining_space = str_max_size - str_i;
+
+        int ret = snprintf(&str[str_i], remaining_space, "%.2x", *mem_ptr);
+        if (ret < 0 || (size_t)ret >= remaining_space) {
+            // The string was truncated, time to stop.
+            break;
+        }
+    }
+}
+
+struct TP_test_context TP_context;
+
+static int run_tests(int test_count, struct test_info *tests)
+{
+    int ret = call_init_cb(test_count);
     if (ret != 0) {
         dprintf(STDERR_FILENO, "Error. Unable to initialize reporter.\n");
         return -1;
@@ -749,18 +815,18 @@ static int run_tests(int test_count, struct test_info *tests,
         clock_gettime(CLOCK_REALTIME, &TP_context.result.begin);
         ret = setjmp(TP_context.env);
         if (ret == 0) {
-            call_test_begin_cb(r, i, tests[i].name);
-            tests[i].func();
+            call_test_begin_cb(i, tests[i].name);
             TP_context.result.status = TP_TEST_PASSED;
-        } else {
-            if (TP_context.result.status == TP_TEST_FAILED) {
-                ret_code = -1;
-            }
+            tests[i].func();
+        }
+        if (TP_context.result.status == TP_TEST_FAILED) {
+            TP_context.fail_handler(TP_context.fail_handler_arg);
+            ret_code = -1;
         }
         clock_gettime(CLOCK_REALTIME, &TP_context.result.end);
-        call_test_end_cb(r, i, tests[i].name, &TP_context.result);
+        call_test_end_cb(i, tests[i].name, &TP_context.result);
     }
-    call_finish_cb(r);
+    call_finish_cb();
 
     return ret_code;
 }
@@ -804,21 +870,17 @@ int main(int argc, char *argv[])
         print_test_names(test_count, tests);
         ret = 0;
     } else {
-        struct test_reporter console_reporter = {0};
-        struct console_private console_priv;
-        setup_console_reporter(&console_priv, &console_reporter);
-
         struct test_reporter tap_reporter = {0};
         struct tap_private tap_priv;
         if (strlen(args.output_path) > 0) {
             setup_tap_reporter(args.output_path, &tap_priv, &tap_reporter);
             // Chain the reporters so we can have multiple active reporters
-            console_reporter.next = &tap_reporter;
+            reporter.next = &tap_reporter;
         }
 
         ret = TP_global_setup();
         if (ret == 0) {
-            ret = run_tests(test_count, tests, &console_reporter);
+            ret = run_tests(test_count, tests);
             TP_global_teardown();
         }
     }

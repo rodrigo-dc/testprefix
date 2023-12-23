@@ -2,159 +2,302 @@ TAP version 13
 1..56
 not ok 1 test_fail_assert_false_define
   ---
-  message: 'test.c:64: assertion failed: `!(B > A)` - check error messages with preprocessor definitions'
+  message: '
+  test.c:64: assertion failed: `!(B > A)`
+    check error messages with preprocessor definitions
+  '
   ...
 not ok 2 test_fail_assert_false_literal
   ---
-  message: 'test.c:49: assertion failed: `!(20 > 10)` - check error messages with literals'
+  message: '
+  test.c:49: assertion failed: `!(20 > 10)`
+    check error messages with literals
+  '
   ...
 not ok 3 test_fail_assert_false_no_message
   ---
-  message: 'test.c:45: assertion failed: `!(20 > 10)` - '
+  message: '
+  test.c:45: assertion failed: `!(20 > 10)`
+  '
   ...
 not ok 4 test_fail_assert_false_var
   ---
-  message: 'test.c:57: assertion failed: `!(a != b)` - check error messages with variable names'
+  message: '
+  test.c:57: assertion failed: `!(a != b)`
+    check error messages with variable names
+  '
   ...
 not ok 5 test_fail_assert_int_eq_define
   ---
-  message: 'test.c:155: assertion failed: `A == B`. Values: 5, 10. check error messages with preprocessor definitions'
+  message: '
+  test.c:155: assertion failed: `A == B`
+    Values: 5, 10
+    check error messages with preprocessor definitions
+  '
   ...
 not ok 6 test_fail_assert_int_eq_formatted_message
   ---
-  message: 'test.c:135: assertion failed: `a == b`. Values: 2, -3. sum: -1'
+  message: '
+  test.c:135: assertion failed: `a == b`
+    Values: 2, -3
+    sum: -1
+  '
   ...
 not ok 7 test_fail_assert_int_eq_literal
   ---
-  message: 'test.c:140: assertion failed: `-20 == 10`. Values: -20, 10. check error messages with literals'
+  message: '
+  test.c:140: assertion failed: `-20 == 10`
+    Values: -20, 10
+    check error messages with literals
+  '
   ...
 not ok 8 test_fail_assert_int_eq_var
   ---
-  message: 'test.c:148: assertion failed: `a == b`. Values: 2, -3. check error messages with variable names'
+  message: '
+  test.c:148: assertion failed: `a == b`
+    Values: 2, -3
+    check error messages with variable names
+  '
   ...
 not ok 9 test_fail_assert_int_ne_define
   ---
-  message: 'test.c:182: assertion failed: `A != B`. Values: -500, -500. check error messages with preprocessor definitions'
+  message: '
+  test.c:182: assertion failed: `A != B`
+    Values: -500, -500
+    check error messages with preprocessor definitions
+  '
   ...
 not ok 10 test_fail_assert_int_ne_literal
   ---
-  message: 'test.c:167: assertion failed: `-20 != -20`. Values: -20, -20. check error messages with literals'
+  message: '
+  test.c:167: assertion failed: `-20 != -20`
+    Values: -20, -20
+    check error messages with literals
+  '
   ...
 not ok 11 test_fail_assert_int_ne_var
   ---
-  message: 'test.c:175: assertion failed: `a != b`. Values: 3, 3. check error messages with variable names'
+  message: '
+  test.c:175: assertion failed: `a != b`
+    Values: 3, 3
+    check error messages with variable names
+  '
   ...
 not ok 12 test_fail_assert_mem_eq_first_byte
   ---
-  message: 'test.c:307: assertion failed: buffers are not equal.first byte different - Values: aabbcc, ddbbcc'
+  message: '
+  test.c:307: assertion failed: `memcmp(a1, a2, 3) == 0`
+    First: aabbcc
+    Second: ddbbcc
+    first byte different
+  '
   ...
 not ok 13 test_fail_assert_mem_eq_last_byte
   ---
-  message: 'test.c:315: assertion failed: buffers are not equal.last byte different - Values: aabbcc, aabbdd'
+  message: '
+  test.c:315: assertion failed: `memcmp(a1, a2, 3) == 0`
+    First: aabbcc
+    Second: aabbdd
+    last byte different
+  '
   ...
 not ok 14 test_fail_assert_mem_eq_no_message
   ---
-  message: 'test.c:299: assertion failed: buffers are not equal. - Values: aabbcc, ddbbcc'
+  message: '
+  test.c:299: assertion failed: `memcmp(a1, a2, 3) == 0`
+    First: aabbcc
+    Second: ddbbcc
+  '
   ...
 not ok 15 test_fail_assert_mem_eq_truncated_buf
   ---
-  message: 'test.c:329: assertion failed: buffers are not equal.big buffer, last byte different - Values: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e, 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e'
+  message: '
+  test.c:329: assertion failed: `memcmp(a1, a2, sizeof(a1)) == 0`
+    First: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+    Second: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1e
+    big buffer, last byte different
+  '
   ...
 not ok 16 test_fail_assert_mem_ne
   ---
-  message: 'test.c:357: assertion failed: buffers are not equal.same content, size: 3 - Values: aabbcc, aabbcc'
+  message: '
+  test.c:357: assertion failed: `memcmp(a1, a2, 3) != 0`
+    First: aabbcc
+    Second: aabbcc
+    same content, size: 3
+  '
   ...
 not ok 17 test_fail_assert_ptr_eq
   ---
-  message: 'test.c:205: assertion failed: `ptr == NULL`. Values: 0x80000001, (nil). comparing valid pointer to NULL'
+  message: '
+  test.c:205: assertion failed: `ptr == NULL`
+    Values: 0x80000001, (nil)
+    comparing valid pointer to NULL
+  '
   ...
 not ok 18 test_fail_assert_ptr_ne
   ---
-  message: 'test.c:227: assertion failed: `ptr != ptr`. Values: 0x80000001, 0x80000001. comparing the same pointer'
+  message: '
+  test.c:227: assertion failed: `ptr != ptr`
+    Values: 0x80000001, 0x80000001
+    comparing the same pointer
+  '
   ...
 not ok 19 test_fail_assert_str_eq_define
   ---
-  message: 'test.c:252: assertion failed: `strcmp(STRING1, STRING2) == 0`. Values: `asdfghjkl`, ``. check error messages with preprocessor definitions'
+  message: '
+  test.c:252: assertion failed: `strcmp(STRING1, STRING2) == 0`
+    Values: `asdfghjkl`, ``
+    check error messages with preprocessor definitions
+  '
   ...
 not ok 20 test_fail_assert_str_eq_literal
   ---
-  message: 'test.c:237: assertion failed: `strcmp("abcdef", "zyx") == 0`. Values: `abcdef`, `zyx`. check error messages with literals'
+  message: '
+  test.c:237: assertion failed: `strcmp("abcdef", "zyx") == 0`
+    Values: `abcdef`, `zyx`
+    check error messages with literals
+  '
   ...
 not ok 21 test_fail_assert_str_eq_var
   ---
-  message: 'test.c:245: assertion failed: `strcmp(s1, s2) == 0`. Values: `eee`, `qwertyuiop`. check error messages with variables'
+  message: '
+  test.c:245: assertion failed: `strcmp(s1, s2) == 0`
+    Values: `eee`, `qwertyuiop`
+    check error messages with variables
+  '
   ...
 not ok 22 test_fail_assert_str_ne_define
   ---
-  message: 'test.c:280: assertion failed: `strcmp(STRING1, STRING2) != 0`. Values: `asdfghjkl`, `asdfghjkl`. check error messages with preprocessor definitions'
+  message: '
+  test.c:280: assertion failed: `strcmp(STRING1, STRING2) != 0`
+    Values: `asdfghjkl`, `asdfghjkl`
+    check error messages with preprocessor definitions
+  '
   ...
 not ok 23 test_fail_assert_str_ne_literal
   ---
-  message: 'test.c:265: assertion failed: `strcmp("zxcvbnm", "zxcvbnm") != 0`. Values: `zxcvbnm`, `zxcvbnm`. check error messages with literals'
+  message: '
+  test.c:265: assertion failed: `strcmp("zxcvbnm", "zxcvbnm") != 0`
+    Values: `zxcvbnm`, `zxcvbnm`
+    check error messages with literals
+  '
   ...
 not ok 24 test_fail_assert_str_ne_var
   ---
-  message: 'test.c:273: assertion failed: `strcmp(s1, s2) != 0`. Values: `qwertyuiop`, `qwertyuiop`. check error messages with variables'
+  message: '
+  test.c:273: assertion failed: `strcmp(s1, s2) != 0`
+    Values: `qwertyuiop`, `qwertyuiop`
+    check error messages with variables
+  '
   ...
 not ok 25 test_fail_assert_true_define
   ---
-  message: 'test.c:35: assertion failed: `A > B` - check error messages with preprocessor definitions'
+  message: '
+  test.c:35: assertion failed: `A > B`
+    check error messages with preprocessor definitions
+  '
   ...
 not ok 26 test_fail_assert_true_formatted_message
   ---
-  message: 'test.c:15: assertion failed: `0 > 1` - not that useful'
+  message: '
+  test.c:15: assertion failed: `0 > 1`
+    not that useful
+  '
   ...
 not ok 27 test_fail_assert_true_literal
   ---
-  message: 'test.c:20: assertion failed: `0 > 1` - check error messages with literals'
+  message: '
+  test.c:20: assertion failed: `0 > 1`
+    check error messages with literals
+  '
   ...
 not ok 28 test_fail_assert_true_var
   ---
-  message: 'test.c:28: assertion failed: `a == b` - check error messages with variable names'
+  message: '
+  test.c:28: assertion failed: `a == b`
+    check error messages with variable names
+  '
   ...
 not ok 29 test_fail_assert_uint_eq_define
   ---
-  message: 'test.c:93: assertion failed: `A == B`. Values: 5, 10. check error messages with preprocessor definitions'
+  message: '
+  test.c:93: assertion failed: `A == B`
+    Values: 5, 10
+    check error messages with preprocessor definitions
+  '
   ...
 not ok 30 test_fail_assert_uint_eq_literal
   ---
-  message: 'test.c:78: assertion failed: `20 == 10`. Values: 20, 10. check error messages with literals'
+  message: '
+  test.c:78: assertion failed: `20 == 10`
+    Values: 20, 10
+    check error messages with literals
+  '
   ...
 not ok 31 test_fail_assert_uint_eq_no_message
   ---
-  message: 'test.c:74: assertion failed: `20 == 10`. Values: 20, 10. '
+  message: '
+  test.c:74: assertion failed: `20 == 10`
+    Values: 20, 10
+  '
   ...
 not ok 32 test_fail_assert_uint_eq_var
   ---
-  message: 'test.c:86: assertion failed: `a == b`. Values: 2, 3. check error messages with variable names'
+  message: '
+  test.c:86: assertion failed: `a == b`
+    Values: 2, 3
+    check error messages with variable names
+  '
   ...
 not ok 33 test_fail_assert_uint_ne_define
   ---
-  message: 'test.c:120: assertion failed: `A != B`. Values: 500, 500. check error messages with preprocessor definitions'
+  message: '
+  test.c:120: assertion failed: `A != B`
+    Values: 500, 500
+    check error messages with preprocessor definitions
+  '
   ...
 not ok 34 test_fail_assert_uint_ne_literal
   ---
-  message: 'test.c:105: assertion failed: `20 != 20`. Values: 20, 20. check error messages with literals'
+  message: '
+  test.c:105: assertion failed: `20 != 20`
+    Values: 20, 20
+    check error messages with literals
+  '
   ...
 not ok 35 test_fail_assert_uint_ne_var
   ---
-  message: 'test.c:113: assertion failed: `a != b`. Values: 3, 3. check error messages with variable names'
+  message: '
+  test.c:113: assertion failed: `a != b`
+    Values: 3, 3
+    check error messages with variable names
+  '
   ...
 not ok 36 test_fail_in_setup
   ---
-  message: 'test.c:360: assertion failed: `1 == 4` - this should fail'
+  message: '
+  test.c:360: assertion failed: `1 == 4`
+    this should fail
+  '
   ...
 not ok 37 test_fail_with_custom_func
   ---
-  message: 'test.c:405: assertion failed: `false` - '
+  message: '
+  test.c:405: assertion failed: `false`
+  '
   ...
 not ok 38 test_fail_with_free
   ---
-  message: 'test.c:388: assertion failed: `false` - '
+  message: '
+  test.c:388: assertion failed: `false`
+  '
   ...
 not ok 39 test_fail_with_null_handler
   ---
-  message: 'test.c:412: assertion failed: `false` - '
+  message: '
+  test.c:412: assertion failed: `false`
+  '
   ...
 ok 40 test_pass_assert_false
 ok 41 test_pass_assert_int_eq
@@ -171,5 +314,5 @@ ok 51 test_pass_assert_true
 ok 52 test_pass_assert_uint_eq
 ok 53 test_pass_assert_uint_ne
 ok 54 test_pass_in_setup
-ok 55 test_skip # SKIP  testing SKIP
-ok 56 test_skip_without_reason # SKIP  
+ok 55 test_skip # SKIP testing SKIP
+ok 56 test_skip_without_reason # SKIP 
