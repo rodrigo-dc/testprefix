@@ -23,11 +23,12 @@ use the default prefix, `test_`.
 
 void test_suite1_ok_integer_comparison()
 {
-    ASSERT_INT_NE(1 == 2, "they are different");
+    ASSERT_TRUE(1 == 2);
 }
 ```
 
-[Here](#Assertion-macros) you can find the assertion macros currently available.
+[Here](#ASSERT-and-EXPECT-macros) you can find the `ASSERT_` and `EXPECT_`
+macros available.
 
 Now you need to create an ELF executable from `testprefix.c`, the test file and
 your source code.
@@ -46,39 +47,61 @@ Execute the test application.
 ./test_app
 ```
 
-## Assertion macros
+## `ASSERT` and `EXPECT` macros
+
+When an `ASSERT_` macro fails, the test function is abandoned and marked as a
+failure.
+When an `EXPECT_` macro fails, the execution of the test function continues,
+despite being marked as a failure.
 
 ```c
-// Boolean assertions
+// Boolean tests
 ASSERT_TRUE(COND, ...)
+EXPECT_TRUE(COND, ...)
 ASSERT_FALSE(COND, ...)
+EXPECT_FALSE(COND, ...)
+
 // Compare unsigned values
 ASSERT_UINT_EQ(VAL1, VAL2, ...)
+EXPECT_UINT_EQ(VAL1, VAL2, ...)
 ASSERT_UINT_NE(VAL1, VAL2, ...)
+EXPECT_UINT_NE(VAL1, VAL2, ...)
+
 // Compare signed values
 ASSERT_INT_EQ(VAL1, VAL2, ...)
+EXPECT_INT_EQ(VAL1, VAL2, ...)
 ASSERT_INT_NE(VAL1, VAL2, ...)
+EXPECT_INT_NE(VAL1, VAL2, ...)
+
 // Compare pointer values
 ASSERT_PTR_EQ(PTR1, PTR2, ...)
+EXPECT_PTR_EQ(PTR1, PTR2, ...)
 ASSERT_PTR_NE(PTR1, PTR2, ...)
+EXPECT_PTR_NE(PTR1, PTR2, ...)
+
 // Compare the content of null-terminated strings
 ASSERT_STR_EQ(STR1, STR2, ...)
+EXPECT_STR_EQ(STR1, STR2, ...)
 ASSERT_STR_NE(STR1, STR2, ...)
+EXPECT_STR_NE(STR1, STR2, ...)
+
 // Compare memory regions
 ASSERT_MEM_EQ(PTR1, PTR2, SIZE, ...)
+EXPECT_MEM_EQ(PTR1, PTR2, SIZE, ...)
 ASSERT_MEM_NE(PTR1, PTR2, SIZE, ...)
+EXPECT_MEM_NE(PTR1, PTR2, SIZE, ...)
 ```
 
 > [!TIP]
-> All assertion macros can take a message as argument, which will be included
-> in the error message in case of assertion failure.
+> All `ASSERT_` and `EXPECT_` macros can take a message as argument, which will
+> be included in the error message in case of failure.
 > ```c
 > ASSERT_TRUE(false, "iteration: %u", i);
 > ```
 
 ## Skipping tests
 
-To skip a test, use the macro `SKIP(...)` before any assertion macro.
+To skip a test, use the macro `SKIP(...)` before any other macro.
 Optionally, a string can be passed to `SKIP()`. This string will be part
 of the report.
 
@@ -88,8 +111,8 @@ SKIP("Skipped for some reason.");
 
 ## Releasing resources on test failures
 
-When an assertion fails, the test is aborted immediately. To avoid resource
-leaks, it's possible to register a failure handler for a specific test.
+When an `ASSERT_` macro fails, the test is aborted immediately. To avoid
+resource leaks, it's possible to register a failure handler for a specific test.
 The failure handler is a function with following format:
 
 ```c

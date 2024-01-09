@@ -1,223 +1,223 @@
 +------+
 | TEST | (0) test_fail_assert_false_define
-|      |   test.c:64: assertion failed: '!(B > A)'
+|      |   test.c:64: B > A was expected to be FALSE
 |      |     check error messages with preprocessor definitions
 | FAIL | (0) 
 +------+
 | TEST | (1) test_fail_assert_false_literal
-|      |   test.c:49: assertion failed: '!(20 > 10)'
+|      |   test.c:49: 20 > 10 was expected to be FALSE
 |      |     check error messages with literals
 | FAIL | (1) 
 +------+
 | TEST | (2) test_fail_assert_false_no_message
-|      |   test.c:45: assertion failed: '!(20 > 10)'
+|      |   test.c:45: 20 > 10 was expected to be FALSE
 | FAIL | (2) 
 +------+
 | TEST | (3) test_fail_assert_false_var
-|      |   test.c:57: assertion failed: '!(a != b)'
+|      |   test.c:57: a != b was expected to be FALSE
 |      |     check error messages with variable names
 | FAIL | (3) 
 +------+
 | TEST | (4) test_fail_assert_int_eq_define
-|      |   test.c:155: assertion failed: 'A == B'
+|      |   test.c:155: A and B were expected to be equal
 |      |     Values: 5, 10
 |      |     check error messages with preprocessor definitions
 | FAIL | (4) 
 +------+
 | TEST | (5) test_fail_assert_int_eq_formatted_message
-|      |   test.c:135: assertion failed: 'a == b'
+|      |   test.c:135: a and b were expected to be equal
 |      |     Values: 2, -3
 |      |     sum: -1
 | FAIL | (5) 
 +------+
 | TEST | (6) test_fail_assert_int_eq_literal
-|      |   test.c:140: assertion failed: '-20 == 10'
+|      |   test.c:140: -20 and 10 were expected to be equal
 |      |     Values: -20, 10
 |      |     check error messages with literals
 | FAIL | (6) 
 +------+
 | TEST | (7) test_fail_assert_int_eq_var
-|      |   test.c:148: assertion failed: 'a == b'
+|      |   test.c:148: a and b were expected to be equal
 |      |     Values: 2, -3
 |      |     check error messages with variable names
 | FAIL | (7) 
 +------+
 | TEST | (8) test_fail_assert_int_ne_define
-|      |   test.c:182: assertion failed: 'A != B'
+|      |   test.c:182: A and B were expected to be different
 |      |     Values: -500, -500
 |      |     check error messages with preprocessor definitions
 | FAIL | (8) 
 +------+
 | TEST | (9) test_fail_assert_int_ne_literal
-|      |   test.c:167: assertion failed: '-20 != -20'
+|      |   test.c:167: -20 and -20 were expected to be different
 |      |     Values: -20, -20
 |      |     check error messages with literals
 | FAIL | (9) 
 +------+
 | TEST | (10) test_fail_assert_int_ne_var
-|      |   test.c:175: assertion failed: 'a != b'
+|      |   test.c:175: a and b were expected to be different
 |      |     Values: 3, 3
 |      |     check error messages with variable names
 | FAIL | (10) 
 +------+
 | TEST | (11) test_fail_assert_mem_eq_first_byte
-|      |   test.c:307: assertion failed: 'memcmp(a1, a2, 3) == 0'
+|      |   test.c:307: a1 and a2 were expected to contain the same data
 |      |     First: aabbcc
 |      |     Second: ddbbcc
 |      |     first byte different
 | FAIL | (11) 
 +------+
 | TEST | (12) test_fail_assert_mem_eq_last_byte
-|      |   test.c:315: assertion failed: 'memcmp(a1, a2, 3) == 0'
+|      |   test.c:315: a1 and a2 were expected to contain the same data
 |      |     First: aabbcc
 |      |     Second: aabbdd
 |      |     last byte different
 | FAIL | (12) 
 +------+
 | TEST | (13) test_fail_assert_mem_eq_no_message
-|      |   test.c:299: assertion failed: 'memcmp(a1, a2, 3) == 0'
+|      |   test.c:299: a1 and a2 were expected to contain the same data
 |      |     First: aabbcc
 |      |     Second: ddbbcc
 | FAIL | (13) 
 +------+
 | TEST | (14) test_fail_assert_mem_eq_truncated_buf
-|      |   test.c:329: assertion failed: 'memcmp(a1, a2, sizeof(a1)) == 0'
+|      |   test.c:329: a1 and a2 were expected to contain the same data
 |      |     First: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
 |      |     Second: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1e
 |      |     big buffer, last byte different
 | FAIL | (14) 
 +------+
 | TEST | (15) test_fail_assert_mem_ne
-|      |   test.c:357: assertion failed: 'memcmp(a1, a2, 3) != 0'
+|      |   test.c:357: a1 and a2 were expected to contain different data
 |      |     First: aabbcc
 |      |     Second: aabbcc
 |      |     same content, size: 3
 | FAIL | (15) 
 +------+
 | TEST | (16) test_fail_assert_ptr_eq
-|      |   test.c:205: assertion failed: 'ptr == NULL'
+|      |   test.c:205: ptr and NULL were expected to be equal
 |      |     Values: 0x80000001, (nil)
 |      |     comparing valid pointer to NULL
 | FAIL | (16) 
 +------+
 | TEST | (17) test_fail_assert_ptr_ne
-|      |   test.c:227: assertion failed: 'ptr != ptr'
+|      |   test.c:227: ptr and ptr were expected to be different
 |      |     Values: 0x80000001, 0x80000001
 |      |     comparing the same pointer
 | FAIL | (17) 
 +------+
 | TEST | (18) test_fail_assert_str_eq_define
-|      |   test.c:252: assertion failed: 'strcmp(STRING1, STRING2) == 0'
+|      |   test.c:252: STRING1 and STRING2 were expected to be equal
 |      |     Values: 'asdfghjkl', ''
 |      |     check error messages with preprocessor definitions
 | FAIL | (18) 
 +------+
 | TEST | (19) test_fail_assert_str_eq_literal
-|      |   test.c:237: assertion failed: 'strcmp("abcdef", "zyx") == 0'
+|      |   test.c:237: "abcdef" and "zyx" were expected to be equal
 |      |     Values: 'abcdef', 'zyx'
 |      |     check error messages with literals
 | FAIL | (19) 
 +------+
 | TEST | (20) test_fail_assert_str_eq_var
-|      |   test.c:245: assertion failed: 'strcmp(s1, s2) == 0'
+|      |   test.c:245: s1 and s2 were expected to be equal
 |      |     Values: 'eee', 'qwertyuiop'
 |      |     check error messages with variables
 | FAIL | (20) 
 +------+
 | TEST | (21) test_fail_assert_str_ne_define
-|      |   test.c:280: assertion failed: 'strcmp(STRING1, STRING2) != 0'
+|      |   test.c:280: STRING1 and STRING2 were expected to be different
 |      |     Values: 'asdfghjkl', 'asdfghjkl'
 |      |     check error messages with preprocessor definitions
 | FAIL | (21) 
 +------+
 | TEST | (22) test_fail_assert_str_ne_literal
-|      |   test.c:265: assertion failed: 'strcmp("zxcvbnm", "zxcvbnm") != 0'
+|      |   test.c:265: "zxcvbnm" and "zxcvbnm" were expected to be different
 |      |     Values: 'zxcvbnm', 'zxcvbnm'
 |      |     check error messages with literals
 | FAIL | (22) 
 +------+
 | TEST | (23) test_fail_assert_str_ne_var
-|      |   test.c:273: assertion failed: 'strcmp(s1, s2) != 0'
+|      |   test.c:273: s1 and s2 were expected to be different
 |      |     Values: 'qwertyuiop', 'qwertyuiop'
 |      |     check error messages with variables
 | FAIL | (23) 
 +------+
 | TEST | (24) test_fail_assert_true_define
-|      |   test.c:35: assertion failed: 'A > B'
+|      |   test.c:35: A > B was expected to be TRUE
 |      |     check error messages with preprocessor definitions
 | FAIL | (24) 
 +------+
 | TEST | (25) test_fail_assert_true_formatted_message
-|      |   test.c:15: assertion failed: '0 > 1'
+|      |   test.c:15: 0 > 1 was expected to be TRUE
 |      |     not that useful
 | FAIL | (25) 
 +------+
 | TEST | (26) test_fail_assert_true_literal
-|      |   test.c:20: assertion failed: '0 > 1'
+|      |   test.c:20: 0 > 1 was expected to be TRUE
 |      |     check error messages with literals
 | FAIL | (26) 
 +------+
 | TEST | (27) test_fail_assert_true_var
-|      |   test.c:28: assertion failed: 'a == b'
+|      |   test.c:28: a == b was expected to be TRUE
 |      |     check error messages with variable names
 | FAIL | (27) 
 +------+
 | TEST | (28) test_fail_assert_uint_eq_define
-|      |   test.c:93: assertion failed: 'A == B'
+|      |   test.c:93: A and B were expected to be equal
 |      |     Values: 5, 10
 |      |     check error messages with preprocessor definitions
 | FAIL | (28) 
 +------+
 | TEST | (29) test_fail_assert_uint_eq_literal
-|      |   test.c:78: assertion failed: '20 == 10'
+|      |   test.c:78: 20 and 10 were expected to be equal
 |      |     Values: 20, 10
 |      |     check error messages with literals
 | FAIL | (29) 
 +------+
 | TEST | (30) test_fail_assert_uint_eq_no_message
-|      |   test.c:74: assertion failed: '20 == 10'
+|      |   test.c:74: 20 and 10 were expected to be equal
 |      |     Values: 20, 10
 | FAIL | (30) 
 +------+
 | TEST | (31) test_fail_assert_uint_eq_var
-|      |   test.c:86: assertion failed: 'a == b'
+|      |   test.c:86: a and b were expected to be equal
 |      |     Values: 2, 3
 |      |     check error messages with variable names
 | FAIL | (31) 
 +------+
 | TEST | (32) test_fail_assert_uint_ne_define
-|      |   test.c:120: assertion failed: 'A != B'
+|      |   test.c:120: A and B were expected to be different
 |      |     Values: 500, 500
 |      |     check error messages with preprocessor definitions
 | FAIL | (32) 
 +------+
 | TEST | (33) test_fail_assert_uint_ne_literal
-|      |   test.c:105: assertion failed: '20 != 20'
+|      |   test.c:105: 20 and 20 were expected to be different
 |      |     Values: 20, 20
 |      |     check error messages with literals
 | FAIL | (33) 
 +------+
 | TEST | (34) test_fail_assert_uint_ne_var
-|      |   test.c:113: assertion failed: 'a != b'
+|      |   test.c:113: a and b were expected to be different
 |      |     Values: 3, 3
 |      |     check error messages with variable names
 | FAIL | (34) 
 +------+
 | TEST | (35) test_fail_in_setup
-|      |   test.c:360: assertion failed: '1 == 4'
+|      |   test.c:360: 1 == 4 was expected to be TRUE
 |      |     this should fail
 | FAIL | (35) 
 +------+
 | TEST | (36) test_fail_with_custom_func
-|      |   test.c:405: assertion failed: 'false'
+|      |   test.c:405: false was expected to be TRUE
 | FAIL | (36) 
 +------+
 | TEST | (37) test_fail_with_free
-|      |   test.c:388: assertion failed: 'false'
+|      |   test.c:388: false was expected to be TRUE
 | FAIL | (37) 
 +------+
 | TEST | (38) test_fail_with_null_handler
-|      |   test.c:412: assertion failed: 'false'
+|      |   test.c:412: false was expected to be TRUE
 | FAIL | (38) 
 +------+
 | TEST | (39) test_pass_assert_false

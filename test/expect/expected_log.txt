@@ -1,0 +1,111 @@
++------+
+| TEST | (0) test_fail_expect_false
+|      |   test.c:75: 1 == 1 was expected to be FALSE
+|      |     EXPECT_FALSE alone can fail the test
+| FAIL | (0) 
++------+
+| TEST | (1) test_fail_expect_int_eq
+|      |   test.c:80: 1 and 2 were expected to be equal
+|      |     Values: 1, 2
+|      |     EXPECT_INT_EQ alone can fail the test
+| FAIL | (1) 
++------+
+| TEST | (2) test_fail_expect_int_ne
+|      |   test.c:85: 1 and 1 were expected to be different
+|      |     Values: 1, 1
+|      |     EXPECT_INT_NE alone can fail the test
+| FAIL | (2) 
++------+
+| TEST | (3) test_fail_expect_mem_eq
+|      |   test.c:124: a and b were expected to contain the same data
+|      |     First: 010203
+|      |     Second: 010204
+|      |     EXPECT_MEM_EQ alone can fail the test
+| FAIL | (3) 
++------+
+| TEST | (4) test_fail_expect_mem_ne
+|      |   test.c:132: a and b were expected to contain different data
+|      |     First: 010203
+|      |     Second: 010203
+|      |     EXPECT_MEM_NE alone can fail the test
+| FAIL | (4) 
++------+
+| TEST | (5) test_fail_expect_ptr_eq
+|      |   test.c:100: NULL and (void *)0x80000000 were expected to be equal
+|      |     Values: (nil), 0x80000000
+|      |     EXPECT_PTR_EQ alone can fail the test
+| FAIL | (5) 
++------+
+| TEST | (6) test_fail_expect_ptr_ne
+|      |   test.c:106: NULL and NULL were expected to be different
+|      |     Values: (nil), (nil)
+|      |     EXPECT_PTR_NE alone can fail the test
+| FAIL | (6) 
++------+
+| TEST | (7) test_fail_expect_str_eq
+|      |   test.c:111: "aab" and "aabb" were expected to be equal
+|      |     Values: 'aab', 'aabb'
+|      |     EXPECT_STR_EQ alone can fail the test
+| FAIL | (7) 
++------+
+| TEST | (8) test_fail_expect_str_ne
+|      |   test.c:116: "ddd" and "ddd" were expected to be different
+|      |     Values: 'ddd', 'ddd'
+|      |     EXPECT_STR_NE alone can fail the test
+| FAIL | (8) 
++------+
+| TEST | (9) test_fail_expect_true
+|      |   test.c:70: 1 == 2 was expected to be TRUE
+|      |     EXPECT_TRUE alone can fail the test
+| FAIL | (9) 
++------+
+| TEST | (10) test_fail_expect_uint_eq
+|      |   test.c:90: 1 and 2 were expected to be equal
+|      |     Values: 1, 2
+|      |     EXPECT_UINT_EQ alone can fail the test
+| FAIL | (10) 
++------+
+| TEST | (11) test_fail_expect_uint_ne
+|      |   test.c:95: 2 and 2 were expected to be different
+|      |     Values: 2, 2
+|      |     EXPECT_UINT_NE alone can fail the test
+| FAIL | (11) 
++------+
+| TEST | (12) test_fail_expect_with_no_message
+|      |   test.c:11: a_bool was expected to be TRUE
+|      |   test.c:13: ANOTHER_BOOL was expected to be FALSE
+|      |   test.c:18: A and B were expected to be equal
+|      |     Values: -1, 1
+|      |   test.c:19: B and B were expected to be different
+|      |     Values: 1, 1
+|      |   test.c:23: 0x1 and 0x2 were expected to be equal
+|      |     Values: 1, 2
+|      |   test.c:24: 1 and 1 were expected to be different
+|      |     Values: 1, 1
+|      |   test.c:26: NULL and (void *)0x80000000 were expected to be equal
+|      |     Values: (nil), 0x80000000
+|      |   test.c:27: NULL and NULL were expected to be different
+|      |     Values: (nil), (nil)
+|      |   test.c:28: "one" and "two" were expected to be equal
+|      |     Values: 'one', 'two'
+|      |   test.c:29: "one" and "one" were expected to be different
+|      |     Values: 'one', 'one'
+|      |   test.c:34: a123 and a321 were expected to contain the same data
+|      |     First: 010203
+|      |     Second: 030201
+|      |   test.c:35: a123 and b123 were expected to contain different data
+|      |     First: 010203
+|      |     Second: 010203
+|      |   test.c:37: false was expected to be TRUE
+|      |     after failed EXPECT macros, ASSERT still works
+| FAIL | (12) 
++------+
+| TEST | (13) test_pass_expect
+| PASS | (13) 
+'------+-----------------
+       |   Total: 14
+       |  Passed: 1
+       |  Failed: 13
+       | Skipped: 0
+       '-----------------
+
