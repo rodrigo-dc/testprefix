@@ -1,1 +1,1 @@
-Custom global setup with error!
+Error. TP_global_setup failed.

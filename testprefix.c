@@ -18,6 +18,9 @@
 // Maximum size for strings (except the error message)
 #define STRING_SIZE_MAX 64
 
+static int tp_stdout = STDOUT_FILENO;
+static int tp_stderr = STDERR_FILENO;
+
 //
 // ELF parsing
 //
@@ -137,13 +140,13 @@ static int read_elf_header(int fd, struct elf_header *header)
     char elf_class = 0;
     ssize_t ret = read(fd, &elf_class, 1);
     if (ret != 1) {
-        dprintf(STDERR_FILENO, "Error. Could not read ELF class.\n");
+        dprintf(tp_stderr, "Error. Could not read ELF class.\n");
         return -1;
     }
 
     if (elf_class != EXPECTED_ELF_CLASS) {
-        dprintf(STDERR_FILENO, "Error. ELF header size mismatch.\n");
-        dprintf(STDERR_FILENO, "Expected: %d, Actual: %d\n", EXPECTED_ELF_CLASS,
+        dprintf(tp_stderr, "Error. ELF header size mismatch.\n");
+        dprintf(tp_stderr, "Expected: %d, Actual: %d\n", EXPECTED_ELF_CLASS,
                 elf_class);
         return -1;
     }
@@ -153,13 +156,13 @@ static int read_elf_header(int fd, struct elf_header *header)
     size_t elf_header_size = sizeof(struct elf_header);
     ret = read(fd, header, elf_header_size);
     if (ret < 0 || (size_t)ret != elf_header_size) {
-        dprintf(STDERR_FILENO, "Error. Could not read ELF header.\n");
+        dprintf(tp_stderr, "Error. Could not read ELF header.\n");
         return -1;
     }
 
     if (memcmp(header->e_ident, ELF_MAGIC, ELF_MAGIC_SIZE) != 0) {
-        dprintf(STDERR_FILENO, "Error. ELF magic does not match.\n");
-        dprintf(STDERR_FILENO, "magic: %x(%c) %x(%c) %x(%c) %x(%c)\n",
+        dprintf(tp_stderr, "Error. ELF magic does not match.\n");
+        dprintf(tp_stderr, "magic: %x(%c) %x(%c) %x(%c) %x(%c)\n",
                 header->e_ident[0], header->e_ident[0], header->e_ident[1],
                 header->e_ident[1], header->e_ident[2], header->e_ident[2],
                 header->e_ident[3], header->e_ident[3]);
@@ -175,14 +178,14 @@ static int read_string_table(int fd, struct elf_sec_header *sec_header,
     table->size = sec_header->sh_size;
     table->strings = malloc(table->size);
     if (table->strings == NULL) {
-        dprintf(STDERR_FILENO, "Error. Could not allocate memory.");
+        dprintf(tp_stderr, "Error. Could not allocate memory.");
         return -1;
     }
 
     lseek(fd, (off_t)sec_header->sh_offset, SEEK_SET);
     ssize_t ret = read(fd, table->strings, table->size);
     if (ret < 0 || (size_t)ret != table->size) {
-        dprintf(STDERR_FILENO, "Error. Could not read string section data.");
+        dprintf(tp_stderr, "Error. Could not read string section data.");
         free(table->strings);
         table->strings = NULL;
         table->size = 0;
@@ -221,7 +224,7 @@ static int read_sec_header_at_index(int fd, struct elf_header *header,
 
     ssize_t ret = read(fd, sec_header, header->e_shentsize);
     if (ret < 0 || ret != header->e_shentsize) {
-        dprintf(STDERR_FILENO, "Error. Could not read section header.\n");
+        dprintf(tp_stderr, "Error. Could not read section header.\n");
         return -1;
     }
 
@@ -274,7 +277,7 @@ struct test_reporter {
 #define FG_BOLD "\x1b[1m"
 #define TERM_RESET "\x1b[0m"
 
-#define CONST_STR(code, str) isatty(STDOUT_FILENO) ? code str TERM_RESET : str
+#define CONST_STR(code, str) isatty(tp_stdout) ? code str TERM_RESET : str
 
 #define BOLD_CONST(str) CONST_STR(FG_BOLD, str)
 #define GREEN_CONST(str) CONST_STR(FG_GREEN, str)
@@ -313,11 +316,12 @@ static void console_test_begin_cb(int index, const char *name, void *private)
 {
     (void)private;
 
-    printf("+------+\n");
-    if (isatty(STDOUT_FILENO)) {
-        printf("| TEST | (%d)" FG_BOLD " %s " TERM_RESET "\n", index, name);
+    dprintf(tp_stdout, "+------+\n");
+    if (isatty(tp_stdout)) {
+        dprintf(tp_stdout, "| TEST | (%d)" FG_BOLD " %s " TERM_RESET "\n",
+                index, name);
     } else {
-        printf("| TEST | (%d) %s\n", index, name);
+        dprintf(tp_stdout, "| TEST | (%d) %s\n", index, name);
     }
 }
 
@@ -326,13 +330,13 @@ void console_test_message_cb(unsigned int level, const char *msg, void *private)
     (void)private;
 
     if (msg[0] != '\0') {
-        (void)fputs("|      | ", stdout);
+        dprintf(tp_stdout, "|      | ");
         // Two spacess added for each level
         while (level > 0) {
-            (void)fputs("  ", stdout);
+            dprintf(tp_stdout, "  ");
             level--;
         }
-        printf("  %s\n", msg);
+        dprintf(tp_stdout, "  %s\n", msg);
     }
 }
 
@@ -356,22 +360,26 @@ static void console_test_end_cb(int index, const char *name,
         result_string = RED_CONST("FAIL");
     }
 
-    printf("| %s | (%d) %ld ms", result_string, index,
-           elapsed_time_ms(&result->begin, &result->end));
+    dprintf(tp_stdout, "| %s | (%d) %ld ms", result_string, index,
+            elapsed_time_ms(&result->begin, &result->end));
 
-    printf("\n");
+    dprintf(tp_stdout, "\n");
 }
 
 static void console_finish_cb(struct test_reporter *self)
 {
     struct console_private *cp = (struct console_private *)self->private;
 
-    printf("'------+-----------------\n");
-    printf("       | %s: %d\n", BOLD_CONST("  Total"), cp->test_count);
-    printf("       | %s: %d\n", BOLD_CONST(" Passed"), cp->success_counter);
-    printf("       | %s: %d\n", BOLD_CONST(" Failed"), cp->failure_counter);
-    printf("       | %s: %d\n", BOLD_CONST("Skipped"), cp->skip_counter);
-    printf("       '-----------------\n\n");
+    dprintf(tp_stdout, "'------+-----------------\n");
+    dprintf(tp_stdout, "       | %s: %d\n", BOLD_CONST("  Total"),
+            cp->test_count);
+    dprintf(tp_stdout, "       | %s: %d\n", BOLD_CONST(" Passed"),
+            cp->success_counter);
+    dprintf(tp_stdout, "       | %s: %d\n", BOLD_CONST(" Failed"),
+            cp->failure_counter);
+    dprintf(tp_stdout, "       | %s: %d\n", BOLD_CONST("Skipped"),
+            cp->skip_counter);
+    dprintf(tp_stdout, "       '-----------------\n\n");
 }
 
 struct console_private reporter_priv;
@@ -400,7 +408,7 @@ static int tap_init_cb(struct test_reporter *self, int test_count)
     int fd = open(tp->path, O_CREAT | O_TRUNC | O_RDWR,
                   S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (fd < 0) {
-        dprintf(STDERR_FILENO, "Error. Unable to open '%s'\n", tp->path);
+        dprintf(tp_stderr, "Error. Unable to open '%s'\n", tp->path);
         return -1;
     }
 
@@ -544,7 +552,7 @@ static int read_symbols(int fd, struct elf_sec_header *symtab_header,
         struct elf_sym sym;
         ssize_t ret = read(fd, &sym, symtab_header->sh_entsize);
         if (ret < 0 || (ELF_UINT)ret != symtab_header->sh_entsize) {
-            dprintf(STDERR_FILENO, "Error. Could not read symbol.");
+            dprintf(tp_stderr, "Error. Could not read symbol.");
             break;
         }
         if ((sym.st_info & 0xf) != SYM_TYPE_FUNCTION) {
@@ -552,7 +560,7 @@ static int read_symbols(int fd, struct elf_sec_header *symtab_header,
         }
         uint32_t str_index = sym.st_name;
         if (str_index >= str_table.size) {
-            dprintf(STDERR_FILENO, "Error. Invalid string index.\n");
+            dprintf(tp_stderr, "Error. Invalid string index.\n");
             break;
         }
         size_t prefix_len = strnlen(prefix, STRING_SIZE_MAX);
@@ -596,14 +604,14 @@ static int create_test_list(int fd, struct elf_header *header,
     int ret = read_sec_header_at_index(fd, header, symtab_header->sh_link,
                                        &sec_header);
     if (ret != 0) {
-        dprintf(STDERR_FILENO, "Error. Could not read string table header.\n");
+        dprintf(tp_stderr, "Error. Could not read string table header.\n");
         return -1;
     }
 
     struct string_table str_table;
     ret = read_string_table(fd, &sec_header, &str_table);
     if (ret != 0) {
-        dprintf(STDERR_FILENO, "Error. Could not read string table.\n");
+        dprintf(tp_stderr, "Error. Could not read string table.\n");
         return -1;
     }
 
@@ -616,7 +624,7 @@ static int create_test_list(int fd, struct elf_header *header,
     *tests = malloc(sizeof(struct test_info) * test_count);
     if (*tests == NULL) {
         destroy_string_table(&str_table);
-        dprintf(STDERR_FILENO, "Error. Could not read string table.\n");
+        dprintf(tp_stderr, "Error. Could not read string table.\n");
         return -1;
     }
 
@@ -628,11 +636,19 @@ static int create_test_list(int fd, struct elf_header *header,
     return test_count;
 }
 
-static int find_tests(int fd, const char *prefix, struct test_info **tests)
+static int find_tests(const char *self_path, const char *prefix,
+                      struct test_info **tests)
 {
+    int fd = open(self_path, O_RDONLY);
+    if (fd < 0) {
+        dprintf(tp_stderr, "Error. Could not open '%s'\n", self_path);
+        return -1;
+    }
+
     struct elf_header header;
     int ret = read_elf_header(fd, &header);
     if (ret != 0) {
+        close(fd);
         return -1;
     }
 
@@ -640,10 +656,14 @@ static int find_tests(int fd, const char *prefix, struct test_info **tests)
     uint16_t index = 0;
     ret = read_next_symtab_header(fd, &header, &index, &symtab_header);
     if (ret != 0) {
+        close(fd);
         return -1;
     }
 
-    return create_test_list(fd, &header, &symtab_header, prefix, tests);
+    ret = create_test_list(fd, &header, &symtab_header, prefix, tests);
+
+    close(fd);
+    return ret;
 }
 
 //
@@ -654,6 +674,7 @@ struct cli_args {
     bool print_test_names;
     char prefix[STRING_SIZE_MAX];
     char output_path[STRING_SIZE_MAX];
+    bool verbose;
 };
 
 static void print_usage(char *argv[])
@@ -663,6 +684,7 @@ static void print_usage(char *argv[])
     printf("    -l  List the tests that match PREFIX.\n");
     printf("    -h  Show this help message.\n");
     printf("    -o  Write a test report to FILE (TAP format).\n");
+    printf("    -v  Verbose (do not silence stdout/stderr).\n");
 }
 
 static int parse_args(int argc, char *argv[], struct cli_args *args)
@@ -673,8 +695,9 @@ static int parse_args(int argc, char *argv[], struct cli_args *args)
     args->print_test_names = false;
     strcpy(args->prefix, FUNC_PREFIX_DEFAULT);
     args->output_path[0] = '\0';
+    args->verbose = false;
 
-    while ((opt = getopt(argc, argv, "p:hlo:")) != -1) {
+    while ((opt = getopt(argc, argv, "p:hlo:v")) != -1) {
         switch (opt) {
         case 'p':
             strncpy(args->prefix, optarg, sizeof(args->prefix) - 1);
@@ -687,6 +710,9 @@ static int parse_args(int argc, char *argv[], struct cli_args *args)
             break;
         case 'o':
             strncpy(args->output_path, optarg, sizeof(args->output_path) - 1);
+            break;
+        case 'q':
+            args->verbose = true;
             break;
         default:
             return -1;
@@ -802,7 +828,7 @@ static int run_tests(int test_count, struct test_info *tests)
 {
     int ret = call_init_cb(test_count);
     if (ret != 0) {
-        dprintf(STDERR_FILENO, "Error. Unable to initialize reporter.\n");
+        dprintf(tp_stderr, "Error. Unable to initialize reporter.\n");
         return -1;
     }
 
@@ -834,10 +860,48 @@ static int run_tests(int test_count, struct test_info *tests)
 static void print_test_names(int test_count, struct test_info *tests)
 {
     for (int i = 0; i < test_count; i++) {
-        printf("    - %s\n", tests[i].name);
+        dprintf(tp_stdout, "    - %s\n", tests[i].name);
     }
 
-    printf("\n%s: %d\n", BOLD_CONST("Total"), test_count);
+    dprintf(tp_stdout, "\n%s: %d\n", BOLD_CONST("Total"), test_count);
+}
+
+// Opens a new file specified by 'path' and associates it with the file
+// descriptor 'std_fd'. The file previously associated with 'std_fd' can still
+// be reached via the new descriptor 'dup_std_fd'.
+static int replace_std_fd(int std_fd, const char *path, int *dup_std_fd)
+{
+    int fd = open(path, O_CREAT | O_TRUNC | O_RDWR,
+                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+    if (fd < 0) {
+        dprintf(tp_stderr, "Error. Unable to open '%s'\n", path);
+        return -1;
+    }
+
+    *dup_std_fd = dup(std_fd);
+
+    int new_fd = dup2(fd, std_fd);
+    close(fd);
+    if (new_fd < 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+static int redirect_outputs()
+{
+    int ret = replace_std_fd(STDOUT_FILENO, "/dev/null", &tp_stdout);
+    if (ret < 0) {
+        return -1;
+    }
+
+    ret = replace_std_fd(STDERR_FILENO, "/dev/null", &tp_stderr);
+    if (ret < 0) {
+        return -1;
+    }
+
+    return 0;
 }
 
 __attribute__((weak)) int TP_global_setup() { return 0; }
@@ -852,17 +916,17 @@ int main(int argc, char *argv[])
         return ret;
     }
 
-    int fd = open(argv[0], O_RDONLY);
-    if (fd < 0) {
-        dprintf(STDERR_FILENO, "Error. Could not open '%s'\n", argv[0]);
-        return -1;
+    if (!args.verbose) {
+        ret = redirect_outputs();
+        if (ret < 0) {
+            dprintf(tp_stderr, "Unable to redirect outputs (-q)\n");
+        }
     }
 
     struct test_info *tests = NULL;
-    int test_count = find_tests(fd, args.prefix, &tests);
+    int test_count = find_tests(argv[0], args.prefix, &tests);
     if (test_count < 1) {
-        dprintf(STDERR_FILENO, "No tests found.\n");
-        close(fd);
+        dprintf(tp_stderr, "No tests found.\n");
         return -1;
     }
 
@@ -882,11 +946,12 @@ int main(int argc, char *argv[])
         if (ret == 0) {
             ret = run_tests(test_count, tests);
             TP_global_teardown();
-        }
+        } else {
+	    dprintf(tp_stderr, "Error. TP_global_setup failed.\n");
+	}
     }
 
     free(tests);
-    close(fd);
 
     return ret;
 }

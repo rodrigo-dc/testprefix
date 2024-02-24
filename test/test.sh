@@ -82,7 +82,7 @@ for s in $SUBDIRS; do
 	# Compare the console output against the reference file
 	OUTPUT_FILE=log.txt
 
-	./$s/$BIN32 -p test_ > $s/$OUTPUT_FILE
+	./$s/$BIN32 -p test_ &> $s/$OUTPUT_FILE
 	# Remove test duration before comparing log files
 	sed -ri "s/[0-9]+ ms//g" $s/$OUTPUT_FILE
 	cmp $s/expected_$OUTPUT_FILE $s/$OUTPUT_FILE

@@ -196,6 +196,7 @@ Usage: ./test_app [-p PREFIX] [-l | -h | -o FILE]
     -l  List the tests that match PREFIX.
     -h  Show this help message.
     -o  Write a test report to FILE (TAP format).
+    -v  Verbose (do not silence stdout/stderr).
 ```
 
 Examples:
