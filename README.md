@@ -13,7 +13,7 @@ Test library with function discovery in C.
 
 ## Creating a simple test
 
-Create a test file, for example, `test_foo.c`. In the test file, include
+Create a test file, for example, `test.c`. In the test file, include
 `testprefix.h` and create a test function. The name of the test function
 must start with the prefix you want to use. For the example below, we will
 use the default prefix, `test_`.
@@ -21,9 +21,9 @@ use the default prefix, `test_`.
 ```c
 #include "testprefix.h"
 
-void test_suite1_ok_integer_comparison()
+void test_that_will_fail()
 {
-    ASSERT_TRUE(1 == 2);
+    ASSERT_TRUE(1 == 2, "one is not equal to two");
 }
 ```
 
@@ -38,7 +38,8 @@ your source code.
 > `main()` out of the test binary.
 
 ```shell
-gcc -std=gnu99 testprefix.c test_suite1.c source1.c -o test_app
+# For a real test, you will want to add other source codes here
+gcc -std=gnu99 testprefix.c test.c -o test_app
 ```
 
 Execute the test application.
@@ -46,6 +47,9 @@ Execute the test application.
 ```shell
 ./test_app
 ```
+The console output looks like this:
+
+![image](https://github.com/rodrigo-dc/testprefix/assets/7612217/8ffed09d-5149-4e11-8cf1-011ef34db094)
 
 ## `ASSERT` and `EXPECT` macros
 
