@@ -1,4 +1,4 @@
-// Copyright 2021 Rodrigo Dias Correa. See LICENSE.
+// Copyright 2021-2024 Rodrigo Dias Correa. See LICENSE.
 #include "testprefix.h"
 #include <stdbool.h>
 #include <stdint.h>

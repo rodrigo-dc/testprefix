@@ -1,5 +1,5 @@
-// Copyright 2021 Rodrigo Dias Correa. See LICENSE.
-// Version 2.0
+// Copyright 2021-2024 Rodrigo Dias Correa. See LICENSE.
+// Version 2.1
 
 #ifndef TESTPREFIX_H_
 #define TESTPREFIX_H_
