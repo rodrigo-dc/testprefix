@@ -1,0 +1,10 @@
+TAP version 13
+1..2
+not ok 1 test_fail_verbose
+  ---
+  message: '
+  test_verbose.c:24: false was expected to be TRUE
+    this will fail
+  '
+  ...
+ok 2 test_pass_verbose

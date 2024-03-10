@@ -25,7 +25,7 @@ cd $(dirname $0)
 trap "on_exit" EXIT
 
 # List of test subdirs
-SUBDIRS="assert expect global_setup_success global_setup_failure"
+SUBDIRS="assert expect global_setup_success global_setup_failure verbose"
 
 #
 # Run clang-tidy

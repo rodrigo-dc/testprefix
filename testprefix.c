@@ -711,7 +711,7 @@ static int parse_args(int argc, char *argv[], struct cli_args *args)
         case 'o':
             strncpy(args->output_path, optarg, sizeof(args->output_path) - 1);
             break;
-        case 'q':
+        case 'v':
             args->verbose = true;
             break;
         default:

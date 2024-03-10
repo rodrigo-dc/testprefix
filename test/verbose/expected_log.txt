@@ -1,0 +1,15 @@
++------+
+| TEST | (0) test_fail_verbose
+|      |   test_verbose.c:24: false was expected to be TRUE
+|      |     this will fail
+| FAIL | (0) 
++------+
+| TEST | (1) test_pass_verbose
+| PASS | (1) 
+'------+-----------------
+       |   Total: 2
+       |  Passed: 1
+       |  Failed: 1
+       | Skipped: 0
+       '-----------------
+

@@ -1,0 +1,19 @@
++------+
+| TEST | (0) test_fail_verbose
+3 text written to stdout
+4 text written to stderr
+|      |   test_verbose.c:24: false was expected to be TRUE
+|      |     this will fail
+| FAIL | (0) 
++------+
+| TEST | (1) test_pass_verbose
+1 text written to stdout
+2 text written to stderr
+| PASS | (1) 
+'------+-----------------
+       |   Total: 2
+       |  Passed: 1
+       |  Failed: 1
+       | Skipped: 0
+       '-----------------
+
