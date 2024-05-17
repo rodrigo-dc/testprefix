@@ -87,7 +87,7 @@ not ok 12 test_fail_assert_mem_eq_first_byte
   ---
   message: '
   test.c:307: a1 and a2 were expected to contain the same data
-    First: aabbcc
+     First: aabbcc
     Second: ddbbcc
     first byte different
   '
@@ -96,7 +96,7 @@ not ok 13 test_fail_assert_mem_eq_last_byte
   ---
   message: '
   test.c:315: a1 and a2 were expected to contain the same data
-    First: aabbcc
+     First: aabbcc
     Second: aabbdd
     last byte different
   '
@@ -105,7 +105,7 @@ not ok 14 test_fail_assert_mem_eq_no_message
   ---
   message: '
   test.c:299: a1 and a2 were expected to contain the same data
-    First: aabbcc
+     First: aabbcc
     Second: ddbbcc
   '
   ...
@@ -113,7 +113,7 @@ not ok 15 test_fail_assert_mem_eq_truncated_buf
   ---
   message: '
   test.c:329: a1 and a2 were expected to contain the same data
-    First: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+     First: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
     Second: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1e
     big buffer, last byte different
   '
@@ -122,7 +122,7 @@ not ok 16 test_fail_assert_mem_ne
   ---
   message: '
   test.c:357: a1 and a2 were expected to contain different data
-    First: aabbcc
+     First: aabbcc
     Second: aabbcc
     same content, size: 3
   '
