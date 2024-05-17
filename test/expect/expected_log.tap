@@ -27,7 +27,7 @@ not ok 4 test_fail_expect_mem_eq
   ---
   message: '
   test.c:124: a and b were expected to contain the same data
-    First: 010203
+     First: 010203
     Second: 010204
     EXPECT_MEM_EQ alone can fail the test
   '
@@ -36,7 +36,7 @@ not ok 5 test_fail_expect_mem_ne
   ---
   message: '
   test.c:132: a and b were expected to contain different data
-    First: 010203
+     First: 010203
     Second: 010203
     EXPECT_MEM_NE alone can fail the test
   '

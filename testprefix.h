@@ -95,7 +95,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
             TP_mem_to_string(b_content, sizeof(b_content), BUF_B, SIZE);       \
             TP_context.result.status = TP_TEST_FAILED;                         \
             TP_send_message(0, __FILE__ ":" TP_LINE_STR ": " ERR_MSG);         \
-            TP_send_message(1, "First: %s", a_content);                        \
+            TP_send_message(1, " First: %s", a_content);                       \
             TP_send_message(1, "Second: %s", b_content);                       \
             TP_send_message(1, "" __VA_ARGS__);                                \
             if (ABORT) {                                                       \

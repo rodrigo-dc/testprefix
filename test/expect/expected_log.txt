@@ -18,14 +18,14 @@
 +------+
 | TEST | (3) test_fail_expect_mem_eq
 |      |   test.c:124: a and b were expected to contain the same data
-|      |     First: 010203
+|      |      First: 010203
 |      |     Second: 010204
 |      |     EXPECT_MEM_EQ alone can fail the test
 | FAIL | (3) 
 +------+
 | TEST | (4) test_fail_expect_mem_ne
 |      |   test.c:132: a and b were expected to contain different data
-|      |     First: 010203
+|      |      First: 010203
 |      |     Second: 010203
 |      |     EXPECT_MEM_NE alone can fail the test
 | FAIL | (4) 
@@ -91,10 +91,10 @@
 |      |   test.c:29: "one" and "one" were expected to be different
 |      |     Values: 'one', 'one'
 |      |   test.c:34: a123 and a321 were expected to contain the same data
-|      |     First: 010203
+|      |      First: 010203
 |      |     Second: 030201
 |      |   test.c:35: a123 and b123 were expected to contain different data
-|      |     First: 010203
+|      |      First: 010203
 |      |     Second: 010203
 |      |   test.c:37: false was expected to be TRUE
 |      |     after failed EXPECT macros, ASSERT still works
