@@ -45,21 +45,6 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
 #define TP_STR_VAL(X) TP_STR(X)
 #define TP_LINE_STR TP_STR_VAL(__LINE__)
 
-#define SET_TEST_FAILURE_HANDLER(HANDLER, HANDLER_ARG)                         \
-    do {                                                                       \
-        if ((HANDLER) != NULL) {                                               \
-            TP_context.fail_handler = HANDLER;                                 \
-            TP_context.fail_handler_arg = HANDLER_ARG;                         \
-        }                                                                      \
-    } while (0)
-
-#define SKIP(...)                                                              \
-    do {                                                                       \
-        TP_context.result.status = TP_TEST_SKIPPED;                            \
-        TP_send_message(0, "" __VA_ARGS__);                                    \
-        longjmp(TP_context.env, 1);                                            \
-    } while (0)
-
 #define TP_BASE_BOOL(COND, ERR_MSG, ABORT, ...)                                \
     do {                                                                       \
         if (!(COND)) {                                                         \
@@ -104,20 +89,33 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
         }                                                                      \
     } while (0)
 
+//                             .------------.
+// ----------------------------| Public API |-----------------------------------
+//                             '------------'
+
+// .----------------------.
+// | ASSERT/EXPECT macros |
+// '----------------------'
+
+// Boolean condition
 #define ASSERT_TRUE(COND, ...)                                                 \
     TP_BASE_BOOL(COND, #COND " was expected to be TRUE", true, __VA_ARGS__)
+
 #define EXPECT_TRUE(COND, ...)                                                 \
     TP_BASE_BOOL(COND, #COND " was expected to be TRUE", false, __VA_ARGS__)
 
 #define ASSERT_FALSE(COND, ...)                                                \
     TP_BASE_BOOL(!(COND), #COND " was expected to be FALSE", true, __VA_ARGS__)
+
 #define EXPECT_FALSE(COND, ...)                                                \
     TP_BASE_BOOL(!(COND), #COND " was expected to be FALSE", false, __VA_ARGS__)
 
+// Unsigned integer comparison
 #define ASSERT_UINT_EQ(VAL1, VAL2, ...)                                        \
     TP_BASE_COMPARISON((VAL1) == (VAL2),                                       \
                        #VAL1 " and " #VAL2 " were expected to be equal", true, \
                        VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
 #define EXPECT_UINT_EQ(VAL1, VAL2, ...)                                        \
     TP_BASE_COMPARISON((VAL1) == (VAL2),                                       \
                        #VAL1 " and " #VAL2 " were expected to be equal",       \
@@ -127,15 +125,18 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     TP_BASE_COMPARISON((VAL1) != (VAL2),                                       \
                        #VAL1 " and " #VAL2 " were expected to be different",   \
                        true, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
 #define EXPECT_UINT_NE(VAL1, VAL2, ...)                                        \
     TP_BASE_COMPARISON((VAL1) != (VAL2),                                       \
                        #VAL1 " and " #VAL2 " were expected to be different",   \
                        false, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
 
+// Signed integer comparison
 #define ASSERT_INT_EQ(VAL1, VAL2, ...)                                         \
     TP_BASE_COMPARISON((VAL1) == (VAL2),                                       \
                        #VAL1 " and " #VAL2 " were expected to be equal", true, \
                        VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
 #define EXPECT_INT_EQ(VAL1, VAL2, ...)                                         \
     TP_BASE_COMPARISON((VAL1) == (VAL2),                                       \
                        #VAL1 " and " #VAL2 " were expected to be equal",       \
@@ -145,15 +146,18 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     TP_BASE_COMPARISON((VAL1) != (VAL2),                                       \
                        #VAL1 " and " #VAL2 " were expected to be different",   \
                        true, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
 #define EXPECT_INT_NE(VAL1, VAL2, ...)                                         \
     TP_BASE_COMPARISON((VAL1) != (VAL2),                                       \
                        #VAL1 " and " #VAL2 " were expected to be different",   \
                        false, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
 
+// Pointer comparison
 #define ASSERT_PTR_EQ(PTR1, PTR2, ...)                                         \
     TP_BASE_COMPARISON((PTR1) == (PTR2),                                       \
                        #PTR1 " and " #PTR2 " were expected to be equal", true, \
                        PTR1, PTR2, "%p", void *, __VA_ARGS__)
+
 #define EXPECT_PTR_EQ(PTR1, PTR2, ...)                                         \
     TP_BASE_COMPARISON((PTR1) == (PTR2),                                       \
                        #PTR1 " and " #PTR2 " were expected to be equal",       \
@@ -163,15 +167,18 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     TP_BASE_COMPARISON((PTR1) != (PTR2),                                       \
                        #PTR1 " and " #PTR2 " were expected to be different",   \
                        true, PTR1, PTR2, "%p", void *, __VA_ARGS__)
+
 #define EXPECT_PTR_NE(PTR1, PTR2, ...)                                         \
     TP_BASE_COMPARISON((PTR1) != (PTR2),                                       \
                        #PTR1 " and " #PTR2 " were expected to be different",   \
                        false, PTR1, PTR2, "%p", void *, __VA_ARGS__)
 
+// String comparison
 #define ASSERT_STR_EQ(STR1, STR2, ...)                                         \
     TP_BASE_COMPARISON(strcmp(STR1, STR2) == 0,                                \
                        #STR1 " and " #STR2 " were expected to be equal", true, \
                        STR1, STR2, "'%s'", const char *, __VA_ARGS__)
+
 #define EXPECT_STR_EQ(STR1, STR2, ...)                                         \
     TP_BASE_COMPARISON(strcmp(STR1, STR2) == 0,                                \
                        #STR1 " and " #STR2 " were expected to be equal",       \
@@ -181,20 +188,23 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     TP_BASE_COMPARISON(strcmp(STR1, STR2) != 0,                                \
                        #STR1 " and " #STR2 " were expected to be different",   \
                        true, STR1, STR2, "'%s'", const char *, __VA_ARGS__)
+
 #define EXPECT_STR_NE(STR1, STR2, ...)                                         \
     TP_BASE_COMPARISON(strcmp(STR1, STR2) != 0,                                \
                        #STR1 " and " #STR2 " were expected to be different",   \
                        false, STR1, STR2, "'%s'", const char *, __VA_ARGS__)
 
+// Memory region comparison
 #define ASSERT_MEM_EQ(PTR1, PTR2, SIZE, ...)                                   \
     TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) == 0,                      \
                            #PTR1 " and " #PTR2                                 \
-                                 " were expected to contain the same data",     \
+                                 " were expected to contain the same data",    \
                            true, PTR1, PTR2, SIZE, __VA_ARGS__)
+
 #define EXPECT_MEM_EQ(PTR1, PTR2, SIZE, ...)                                   \
     TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) == 0,                      \
                            #PTR1 " and " #PTR2                                 \
-                                 " were expected to contain the same data",     \
+                                 " were expected to contain the same data",    \
                            false, PTR1, PTR2, SIZE, __VA_ARGS__)
 
 #define ASSERT_MEM_NE(PTR1, PTR2, SIZE, ...)                                   \
@@ -202,10 +212,32 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
                            #PTR1 " and " #PTR2                                 \
                                  " were expected to contain different data",   \
                            true, PTR1, PTR2, SIZE, __VA_ARGS__)
+
 #define EXPECT_MEM_NE(PTR1, PTR2, SIZE, ...)                                   \
     TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) != 0,                      \
                            #PTR1 " and " #PTR2                                 \
                                  " were expected to contain different data",   \
                            false, PTR1, PTR2, SIZE, __VA_ARGS__)
+// .--------------.
+// | Other macros |
+// '--------------'
 
+#define SKIP(...)                                                              \
+    do {                                                                       \
+        TP_context.result.status = TP_TEST_SKIPPED;                            \
+        TP_send_message(0, "" __VA_ARGS__);                                    \
+        longjmp(TP_context.env, 1);                                            \
+    } while (0)
+
+#define SET_TEST_FAILURE_HANDLER(HANDLER, HANDLER_ARG)                         \
+    do {                                                                       \
+        if ((HANDLER) != NULL) {                                               \
+            TP_context.fail_handler = HANDLER;                                 \
+            TP_context.fail_handler_arg = HANDLER_ARG;                         \
+        }                                                                      \
+    } while (0)
+
+//                          .-------------------.
+// -------------------------| End Of Public API |-------------------------------
+//                          '-------------------'
 #endif // TESTPREFIX_H_
