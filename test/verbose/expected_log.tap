@@ -3,7 +3,7 @@ TAP version 13
 not ok 1 test_fail_verbose
   ---
   message: '
-  test_verbose.c:24: false was expected to be TRUE
+  test_verbose.c:26: false was expected to be TRUE
     this will fail
   '
   ...

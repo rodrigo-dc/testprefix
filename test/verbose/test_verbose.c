@@ -1,3 +1,5 @@
+// Copyright 2021-2024 Rodrigo Dias Correa. See LICENSE.
+
 #include "testprefix.h"
 #include <stdio.h>
 #include <unistd.h>

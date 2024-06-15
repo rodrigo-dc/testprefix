@@ -8,3 +8,5 @@
        | Skipped: 0
        '-----------------
 
+Custom global setup!
+Custom global teardown!
