@@ -1,0 +1,19 @@
++------+
+| TEST | (0) test_fail_with_custom_func
+|      |   test_failure_handler.c:28: false was expected to be TRUE
+| FAIL | (0) 
++------+
+| TEST | (1) test_fail_with_free
+|      |   test_failure_handler.c:11: false was expected to be TRUE
+| FAIL | (1) 
++------+
+| TEST | (2) test_fail_with_null_handler
+|      |   test_failure_handler.c:35: false was expected to be TRUE
+| FAIL | (2) 
+'------+-----------------
+       |   Total: 3
+       |  Passed: 0
+       |  Failed: 3
+       | Skipped: 0
+       '-----------------
+

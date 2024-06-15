@@ -1,22 +1,18 @@
 #!/bin/bash
+
 # Simple test script to make sure everything is, more or less, working.
+# Copyright 2021-2024 Rodrigo Dias Correa. See LICENSE.
 
 on_exit() {
 	if [ $? -eq 0 ]; then
 		echo -e "\n\n.----------------------------------."
-		echo        "|                                  |"
 		echo        "|               :)                 |"
-		echo        "|                                  |"
 		echo        "|             SUCCESS!             |"
-		echo        "|                                  |"
 		echo -e     "'----------------------------------'\n\n"
 	else
 		echo -e "\n\n.----------------------------------."
-		echo        "|                                  |"
 		echo        "|               :(                 |"
-		echo        "|                                  |"
 		echo        "|              ERROR!              |"
-		echo        "|                                  |"
 		echo -e     "'----------------------------------'\n\n"
 	fi
 }
@@ -25,7 +21,7 @@ cd $(dirname $0)
 trap "on_exit" EXIT
 
 # List of test subdirs
-SUBDIRS="assert expect global_setup_success global_setup_failure verbose"
+SUBDIRS="global_setup_success global_setup_failure verbose failure_handler"
 
 #
 # Run clang-tidy
@@ -74,15 +70,15 @@ for s in $SUBDIRS; do
 		exit 1
 	fi
 
-	# Execute subdir-specific test
-	if [ -f $s/subtest.sh ]; then
-		source $s/subtest.sh
+	# Load SUBDIR_OPTIONS
+	if [ -f $s/options.sh ]; then
+		source $s/options.sh
 	fi
 
 	# Compare the console output against the reference file
 	OUTPUT_FILE=log.txt
 
-	./$s/$BIN32 -p test_ &> $s/$OUTPUT_FILE
+	./$s/$BIN32 $SUBDIR_OPTIONS &> $s/$OUTPUT_FILE
 	# Remove test duration before comparing log files
 	sed -ri "s/[0-9]+ ms//g" $s/$OUTPUT_FILE
 	cmp $s/expected_$OUTPUT_FILE $s/$OUTPUT_FILE
@@ -92,7 +88,7 @@ for s in $SUBDIRS; do
 
 	# Compare the TAP output against the reference file (if any)
 	TAP_FILE=log.tap
-	./$s/$BIN64 -p test_ -o $s/$TAP_FILE
+	./$s/$BIN64 $SUBDIR_OPTIONS -o $s/$TAP_FILE
 	if [ -f $s/expected_$TAP_FILE ]; then
 		cmp $s/expected_$TAP_FILE $s/$TAP_FILE
 		if [ $? -ne 0 ]; then
@@ -105,3 +101,11 @@ for s in $SUBDIRS; do
 		fi
 	fi
 done
+
+# macro_check is a subdirectory that contains a different type of test, see
+# macro_check/test.sh.
+if ! ./macro_check/test.sh; then
+    echo "macro_check  failed!"
+    exit 1
+fi
+

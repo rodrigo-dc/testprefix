@@ -1,3 +1,5 @@
+// Copyright 2021-2024 Rodrigo Dias Correa. See LICENSE.
+
 #include "testprefix.h"
 
 int TP_global_setup()
