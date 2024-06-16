@@ -131,6 +131,50 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
                        #VAL1 " and " #VAL2 " were expected to be different",   \
                        false, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
 
+#define ASSERT_UINT_LT(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) < (VAL2),                                        \
+                       #VAL1 " was expected to be less than " #VAL2, true,     \
+                       VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
+#define EXPECT_UINT_LT(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) < (VAL2),                                        \
+                       #VAL1 " was expected to be less than " #VAL2, false,    \
+                       VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
+#define ASSERT_UINT_GT(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) > (VAL2),                                        \
+                       #VAL1 " was expected to be greater than " #VAL2, true,  \
+                       VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
+#define EXPECT_UINT_GT(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) > (VAL2),                                        \
+                       #VAL1 " was expected to be greater than " #VAL2, false, \
+                       VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
+#define ASSERT_UINT_LE(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) <= (VAL2),                                       \
+                       #VAL1                                                   \
+                       " was expected to be less than or equal to " #VAL2,     \
+                       true, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
+#define EXPECT_UINT_LE(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) <= (VAL2),                                       \
+                       #VAL1                                                   \
+                       " was expected to be less than or equal to " #VAL2,     \
+                       false, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
+#define ASSERT_UINT_GE(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) >= (VAL2),                                       \
+                       #VAL1                                                   \
+                       " was expected to be greater than or equal to " #VAL2,  \
+                       true, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
+#define EXPECT_UINT_GE(VAL1, VAL2, ...)                                        \
+    TP_BASE_COMPARISON((VAL1) >= (VAL2),                                       \
+                       #VAL1                                                   \
+                       " was expected to be greater than or equal to " #VAL2,  \
+                       false, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+
 // Signed integer comparison
 #define ASSERT_INT_EQ(VAL1, VAL2, ...)                                         \
     TP_BASE_COMPARISON((VAL1) == (VAL2),                                       \
@@ -150,6 +194,50 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
 #define EXPECT_INT_NE(VAL1, VAL2, ...)                                         \
     TP_BASE_COMPARISON((VAL1) != (VAL2),                                       \
                        #VAL1 " and " #VAL2 " were expected to be different",   \
+                       false, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define ASSERT_INT_LT(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) < (VAL2),                                        \
+                       #VAL1 " was expected to be less than " #VAL2, true,     \
+                       VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define EXPECT_INT_LT(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) < (VAL2),                                        \
+                       #VAL1 " was expected to be less than " #VAL2, false,    \
+                       VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define ASSERT_INT_GT(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) > (VAL2),                                        \
+                       #VAL1 " was expected to be greater than " #VAL2, true,  \
+                       VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define EXPECT_INT_GT(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) > (VAL2),                                        \
+                       #VAL1 " was expected to be greater than " #VAL2, false, \
+                       VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define ASSERT_INT_LE(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) <= (VAL2),                                       \
+                       #VAL1                                                   \
+                       " was expected to be less than or equal to " #VAL2,     \
+                       true, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define EXPECT_INT_LE(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) <= (VAL2),                                       \
+                       #VAL1                                                   \
+                       " was expected to be less than or equal to " #VAL2,     \
+                       false, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define ASSERT_INT_GE(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) >= (VAL2),                                       \
+                       #VAL1                                                   \
+                       " was expected to be greater than or equal to " #VAL2,  \
+                       true, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+
+#define EXPECT_INT_GE(VAL1, VAL2, ...)                                         \
+    TP_BASE_COMPARISON((VAL1) >= (VAL2),                                       \
+                       #VAL1                                                   \
+                       " was expected to be greater than or equal to " #VAL2,  \
                        false, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
 
 // Pointer comparison
