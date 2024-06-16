@@ -129,6 +129,16 @@ of the report.
 SKIP("Skipped for some reason.");
 ```
 
+## Failing tests
+
+To explicitly fail a test, use the macro `FAIL(...)`. The test will be aborted
+immediately and marked as a failure. A string parameter, that will be included in
+the report, can be provided.
+
+```c
+FAIL("no other option, failing the test");
+```
+
 ## Releasing resources on test failures
 
 When an `ASSERT_` macro fails, the test is aborted immediately. To avoid
