@@ -317,6 +317,14 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
         longjmp(TP_context.env, 1);                                            \
     } while (0)
 
+#define FAIL(...)                                                              \
+    do {                                                                       \
+        TP_context.result.status = TP_TEST_FAILED;                             \
+        TP_send_message(0, __FILE__ ":" TP_LINE_STR ": FAIL() invoked");       \
+        TP_send_message(1, "" __VA_ARGS__);                                    \
+        longjmp(TP_context.env, 1);                                            \
+    } while (0)
+
 #define SET_TEST_FAILURE_HANDLER(HANDLER, HANDLER_ARG)                         \
     do {                                                                       \
         if ((HANDLER) != NULL) {                                               \
@@ -326,6 +334,6 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     } while (0)
 
 //                          .-------------------.
-// -------------------------| End Of Public API |-------------------------------
+// -------------------------| End of Public API |-------------------------------
 //                          '-------------------'
 #endif // TESTPREFIX_H_

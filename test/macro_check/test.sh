@@ -164,7 +164,7 @@ run_individual_tests()
         # exit status.
         debug_echo "checking summary"
         case $macro_type in
-        ASSERT | EXPECT)
+        ASSERT | EXPECT | FAIL)
             if [[ $expected_error_count -eq 0 ]]; then
                 test $test_status = "PASS"
                 test $total_passed -eq 1
@@ -185,6 +185,10 @@ run_individual_tests()
             test $total_passed -eq 0
             test $total_failed -eq 0
             test $test_exit_code -eq 0
+            ;;
+        *)
+            echo "unknown macro type: $macro_type"
+            exit 1
             ;;
         esac
 
