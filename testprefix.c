@@ -909,6 +909,10 @@ __attribute__((weak)) void TP_global_teardown() {}
 
 int main(int argc, char *argv[])
 {
+    // testprefix output is not buffered. Disable stdout buffering to keep the
+    // output of the code under test in sync with testprefix's.
+    setbuf(stdout, NULL);
+
     struct cli_args args;
     int ret = parse_args(argc, argv, &args);
     if (ret < 0 || args.print_usage) {

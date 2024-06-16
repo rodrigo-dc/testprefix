@@ -1,3 +1,4 @@
+Custom global setup!
 +------+
 | TEST | (0) test_single
 | PASS | (0) 
@@ -8,5 +9,4 @@
        | Skipped: 0
        '-----------------
 
-Custom global setup!
 Custom global teardown!
