@@ -17,11 +17,19 @@
 # As we are testing testprefix itself, most of these functions fail. The
 # challenge is to know if they are failing in an expected way.
 
-# Uncomment here to debug
-# set -x
+# Set to 1 to enable debug messages
+debug=0
+
 cd $(dirname $0)
 
 VALGRIND="valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all --error-exitcode=88"
+
+debug_echo()
+{
+    if [[ $debug -eq 1 ]]; then
+        echo "debug: $1"
+    fi
+}
 
 error_count_from_test_name()
 {
@@ -107,6 +115,7 @@ run_individual_tests()
 
     # Iterate over the tests, executing them one by one
     for test_name in $test_list; do
+        debug_echo "> $test_name"
         echo -n "."
         # Extract information from the test name
         local expected_error_count=$(error_count_from_test_name $test_name)
@@ -143,14 +152,17 @@ run_individual_tests()
         # Check expected and actual number of errors in the test.
         # Multiple errors are only possible for EXPECT macros because ASSERT macros
         # abort the test when the first error occurs.
+        debug_echo "checking error count"
         test $expected_error_count -eq $actual_error_count
 
         # Check the expected and actual number of messages printed. The messages that
         # are expected to be printed have the same content: ##expected message##
+        debug_echo "checking message count"
         test $expected_message_count -eq $actual_message_count 
 
         # Check the consistency of the summary fields and the test application
         # exit status.
+        debug_echo "checking summary"
         case $macro_type in
         ASSERT | EXPECT)
             if [[ $expected_error_count -eq 0 ]]; then
@@ -179,6 +191,7 @@ run_individual_tests()
         # Many ASSERT and EXPECT macro invocations, that are expected to pass,
         # contain the message "##unexpected message##. If this message appears in
         # the output, something is wrong.
+        debug_echo "checking unexpected messages"
         test $unexpected_message_count -eq 0
     done
     echo
@@ -221,9 +234,11 @@ run_all_tests()
 
     # Some assertions, that are expected to pass, contain a specific message.
     # If they fail, they will print "##unexpected message##".
+    debug_echo "checking unexpected messages"
     test $unexpected_message_count -eq 0
 
     # Check if the summary fields match the test output
+    debug_echo "checking summary"
     test $total_test -eq $(($total_passed + $total_failed + $total_skipped))
     test $total_passed -eq $pass_count
     test $total_failed -eq $fail_count
@@ -237,6 +252,7 @@ run_all_tests()
     local tap_skip_count=$(echo $tapview_lastline|sed -r "s/^[0-9]+ tests, [0-9]+ failures, ([0-9]+) SKIPs.+$/\1/g")
 
     # If tapview could understand the TAP report, these values must match
+    debug_echo "checking TAP report"
     test $total_test -eq $tap_test_count
     test $total_failed -eq $tap_failure_count
     test $total_skipped -eq $tap_skip_count
