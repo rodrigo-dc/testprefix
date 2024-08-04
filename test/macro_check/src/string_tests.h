@@ -36,3 +36,22 @@
     {                                                                          \
         EXPECT_STR_NE(STR1, STR2);                                             \
     }
+
+// Set of tests that provide NULL strings.
+// String macros must always fail when one or both strings are NULL.
+#define STRING_MACRO_TEST_SET_NULL(MACRO)                                      \
+    void test_err1_msg0_##MACRO##_first_null()                                 \
+    {                                                                          \
+        const char *null_ptr = NULL;                                           \
+        MACRO(null_ptr, "second");                                             \
+    }                                                                          \
+    void test_err1_msg0_##MACRO##_second_null()                                \
+    {                                                                          \
+        const char *null_ptr = NULL;                                           \
+        MACRO("first", null_ptr);                                              \
+    }                                                                          \
+    void test_err1_msg0_##MACRO##_both_null()                                  \
+    {                                                                          \
+        const char *null_ptr = NULL;                                           \
+        MACRO(null_ptr, null_ptr);                                             \
+    }

@@ -269,22 +269,26 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
 
 // String comparison
 #define ASSERT_STR_EQ(STR1, STR2, ...)                                         \
-    TP_BASE_COMPARISON(strcmp(STR1, STR2) == 0,                                \
+    TP_BASE_COMPARISON(STR1 != NULL && STR2 != NULL &&                         \
+                           strcmp(STR1, STR2) == 0,                            \
                        #STR1 " and " #STR2 " were expected to be equal", true, \
                        STR1, STR2, "'%s'", const char *, __VA_ARGS__)
 
 #define EXPECT_STR_EQ(STR1, STR2, ...)                                         \
-    TP_BASE_COMPARISON(strcmp(STR1, STR2) == 0,                                \
+    TP_BASE_COMPARISON(STR1 != NULL && STR2 != NULL &&                         \
+                           strcmp(STR1, STR2) == 0,                            \
                        #STR1 " and " #STR2 " were expected to be equal",       \
                        false, STR1, STR2, "'%s'", const char *, __VA_ARGS__)
 
 #define ASSERT_STR_NE(STR1, STR2, ...)                                         \
-    TP_BASE_COMPARISON(strcmp(STR1, STR2) != 0,                                \
+    TP_BASE_COMPARISON(STR1 != NULL && STR2 != NULL &&                         \
+                           strcmp(STR1, STR2) != 0,                            \
                        #STR1 " and " #STR2 " were expected to be different",   \
                        true, STR1, STR2, "'%s'", const char *, __VA_ARGS__)
 
 #define EXPECT_STR_NE(STR1, STR2, ...)                                         \
-    TP_BASE_COMPARISON(strcmp(STR1, STR2) != 0,                                \
+    TP_BASE_COMPARISON(STR1 != NULL && STR2 != NULL &&                         \
+                           strcmp(STR1, STR2) != 0,                            \
                        #STR1 " and " #STR2 " were expected to be different",   \
                        false, STR1, STR2, "'%s'", const char *, __VA_ARGS__)
 

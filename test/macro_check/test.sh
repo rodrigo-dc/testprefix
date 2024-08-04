@@ -166,17 +166,17 @@ run_individual_tests()
         case $macro_type in
         ASSERT | EXPECT | FAIL)
             if [[ $expected_error_count -eq 0 ]]; then
-                test $test_status = "PASS"
-                test $total_passed -eq 1
-                test $total_failed -eq 0
-                test $total_skipped -eq 0
-                test $test_exit_code -eq 0
+                test "$test_status" = "PASS"
+                test "$total_passed" -eq 1
+                test "$total_failed" -eq 0
+                test "$total_skipped" -eq 0
+                test "$test_exit_code" -eq 0
             else
-                test $test_status = "FAIL"
-                test $total_passed -eq 0
-                test $total_failed -eq 1
-                test $total_skipped -eq 0
-                test $test_exit_code -eq 255
+                test "$test_status" = "FAIL"
+                test "$total_passed" -eq 0
+                test "$total_failed" -eq 1
+                test "$total_skipped" -eq 0
+                test "$test_exit_code" -eq 255
             fi
             ;;
         SKIP)
