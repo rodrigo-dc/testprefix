@@ -4,7 +4,8 @@
 | FAIL | (0) 
 +------+
 | TEST | (1) test_fail_with_free
-|      |   test_failure_handler.c:11: false was expected to be TRUE
+|      |   test_failure_handler.c:11: 1 and 2 were expected to be equal
+|      |     Values: 1 (0x1), 2 (0x2)
 | FAIL | (1) 
 +------+
 | TEST | (2) test_fail_with_null_handler
