@@ -8,7 +8,7 @@ void test_fail_with_free()
     uint8_t *buf = malloc(10);
 
     SET_TEST_FAILURE_HANDLER(free, buf);
-    ASSERT_TRUE(false);
+    ASSERT_UINT_EQ(1, 2);
 }
 
 void file_closer(void *ptr)

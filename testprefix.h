@@ -63,7 +63,9 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
             TP_context.result.status = TP_TEST_FAILED;                         \
             TP_send_message(0, __FILE__ ":" TP_LINE_STR ": " ERR_MSG);         \
             if (strcmp(#TYPE, "uint64_t") == 0) {                              \
-                TP_send_message(1, "Values: " FMT " (0x%x), " FMT " (0x%x)",   \
+                TP_send_message(1,                                             \
+                                "Values: " FMT " (0x%" PRIx64 "), " FMT        \
+                                " (0x%" PRIx64 ")",                            \
                                 (TYPE)VAL_A, (TYPE)VAL_A, (TYPE)VAL_B,         \
                                 (TYPE)VAL_B);                                  \
             } else {                                                           \
