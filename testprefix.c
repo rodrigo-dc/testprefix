@@ -20,6 +20,7 @@
 
 static int tp_stdout = STDOUT_FILENO;
 static int tp_stderr = STDERR_FILENO;
+struct TP_test_context TP_context;
 
 //
 // ELF parsing
@@ -822,7 +823,39 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     }
 }
 
-struct TP_test_context TP_context;
+void TP_push_call_trace(const char *info)
+{
+    if (TP_context.call_traces_index < TP_CALL_TRACES_MAX) {
+        TP_context.call_traces[TP_context.call_traces_index] = info;
+    }
+    TP_context.call_traces_index++;
+}
+
+void TP_pop_call_trace()
+{
+    if (TP_context.call_traces_index > 0) {
+        TP_context.call_traces_index--;
+    }
+}
+
+void TP_report_call_traces(unsigned int level)
+{
+    if (TP_context.call_traces_index > 0) {
+        unsigned int end = TP_context.call_traces_index;
+        bool truncated_list = false;
+        if (TP_context.call_traces_index > TP_CALL_TRACES_MAX) {
+            end = TP_CALL_TRACES_MAX;
+            truncated_list = true;
+        }
+
+        for (unsigned int i = 0; i < end; i++) {
+            call_send_test_message_cb(level, TP_context.call_traces[i]);
+        }
+        if (truncated_list) {
+            call_send_test_message_cb(level, "--- Truncated ---");
+        }
+    }
+}
 
 static int run_tests(int test_count, struct test_info *tests)
 {
@@ -837,6 +870,7 @@ static int run_tests(int test_count, struct test_info *tests)
         TP_context.result.message[0] = '\0';
         TP_context.fail_handler = default_failure_handler;
         TP_context.fail_handler_arg = NULL;
+        TP_context.call_traces_index = 0;
 
         clock_gettime(CLOCK_REALTIME, &TP_context.result.begin);
         ret = setjmp(TP_context.env);
@@ -951,8 +985,8 @@ int main(int argc, char *argv[])
             ret = run_tests(test_count, tests);
             TP_global_teardown();
         } else {
-	    dprintf(tp_stderr, "Error. TP_global_setup failed.\n");
-	}
+            dprintf(tp_stderr, "Error. TP_global_setup failed.\n");
+        }
     }
 
     free(tests);

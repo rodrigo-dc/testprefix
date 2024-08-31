@@ -21,7 +21,7 @@ cd $(dirname $0)
 trap "on_exit" EXIT
 
 # List of test subdirs
-SUBDIRS="global_setup_success global_setup_failure verbose failure_handler"
+SUBDIRS="trace_call global_setup_success global_setup_failure verbose failure_handler"
 
 #
 # Run clang-tidy
@@ -64,7 +64,7 @@ for s in $SUBDIRS; do
 	fi
 
 	# Build and run with valgrind (32 bits)
-	make -f ../base.mk -C $s clean all CFLAGS=-m32 BIN_NAME=$BIN32
+	CFLAGS=-m32 make -f ../base.mk -C $s clean all BIN_NAME=$BIN32
 	$VALGRIND ./$s/$BIN32
 	if [ $? -eq $VALGRIND_ERROR_CODE ]; then
 		exit 1

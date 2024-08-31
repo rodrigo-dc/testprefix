@@ -16,6 +16,13 @@
 #define TP_MAX_MSG_SIZE 255
 #endif
 
+#ifndef TP_CALL_TRACES_MAX
+#define TP_CALL_TRACES_MAX 5
+#endif
+#if TP_CALL_TRACES_MAX < 1
+#error TP_CALL_TRACES_MAX must be greater than zero!
+#endif
+
 enum TP_test_status { TP_TEST_PASSED, TP_TEST_FAILED, TP_TEST_SKIPPED };
 
 struct TP_test_result {
@@ -32,6 +39,8 @@ struct TP_test_context {
     struct TP_test_result result;
     TP_failure_handler fail_handler;
     void *fail_handler_arg;
+    const char *call_traces[TP_CALL_TRACES_MAX];
+    unsigned int call_traces_index;
 };
 
 extern struct TP_test_context TP_context;
@@ -40,6 +49,9 @@ extern struct TP_test_context TP_context;
 void TP_send_message(unsigned int level, const char *fmt, ...);
 void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
                       size_t mem_size);
+void TP_push_call_trace(const char *info);
+void TP_pop_call_trace(void);
+void TP_report_call_traces(unsigned int level);
 
 #define TP_STR(X) #X
 #define TP_STR_VAL(X) TP_STR(X)
@@ -49,6 +61,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     do {                                                                       \
         if (!(COND)) {                                                         \
             TP_context.result.status = TP_TEST_FAILED;                         \
+            TP_report_call_traces(0);                                          \
             TP_send_message(0, __FILE__ ":" TP_LINE_STR ": " ERR_MSG);         \
             TP_send_message(1, "" __VA_ARGS__);                                \
             if (ABORT) {                                                       \
@@ -61,6 +74,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
     do {                                                                       \
         if (!(COND)) {                                                         \
             TP_context.result.status = TP_TEST_FAILED;                         \
+            TP_report_call_traces(0);                                          \
             TP_send_message(0, __FILE__ ":" TP_LINE_STR ": " ERR_MSG);         \
             if (strcmp(#TYPE, "uint64_t") == 0) {                              \
                 TP_send_message(1,                                             \
@@ -87,6 +101,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
             TP_mem_to_string(a_content, sizeof(a_content), BUF_A, SIZE);       \
             TP_mem_to_string(b_content, sizeof(b_content), BUF_B, SIZE);       \
             TP_context.result.status = TP_TEST_FAILED;                         \
+            TP_report_call_traces(0);                                          \
             TP_send_message(0, __FILE__ ":" TP_LINE_STR ": " ERR_MSG);         \
             TP_send_message(1, " First: %s", a_content);                       \
             TP_send_message(1, "Second: %s", b_content);                       \
@@ -325,6 +340,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
 #define SKIP(...)                                                              \
     do {                                                                       \
         TP_context.result.status = TP_TEST_SKIPPED;                            \
+        TP_report_call_traces(0);                                              \
         TP_send_message(0, "" __VA_ARGS__);                                    \
         longjmp(TP_context.env, 1);                                            \
     } while (0)
@@ -332,6 +348,7 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
 #define FAIL(...)                                                              \
     do {                                                                       \
         TP_context.result.status = TP_TEST_FAILED;                             \
+        TP_report_call_traces(0);                                              \
         TP_send_message(0, __FILE__ ":" TP_LINE_STR ": FAIL() invoked");       \
         TP_send_message(1, "" __VA_ARGS__);                                    \
         longjmp(TP_context.env, 1);                                            \
@@ -343,6 +360,14 @@ void TP_mem_to_string(char *str, size_t str_max_size, const void *mem,
             TP_context.fail_handler = HANDLER;                                 \
             TP_context.fail_handler_arg = HANDLER_ARG;                         \
         }                                                                      \
+    } while (0)
+
+#define TRACE_CALL(CALL)                                                       \
+    do {                                                                       \
+        TP_push_call_trace(__FILE__ ":" TP_LINE_STR ": " #CALL                 \
+                                    " -- traced call");                        \
+        CALL;                                                                  \
+        TP_pop_call_trace();                                                   \
     } while (0)
 
 //                          .-------------------.
