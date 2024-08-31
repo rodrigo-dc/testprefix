@@ -208,6 +208,26 @@ The global teardown function is executed once, after the last test.
 void TP_global_teardown()
 ```
 
+## Traced calls
+
+When an assertion macro fails in a function that is called from multiple
+places, it can be hard to determine which call failed. This is because
+the error message contains only the location where the macro failed.
+
+The macro `TRACE_CALL` stores the file name and line number of a function
+call. This information will be part of the error message for any failure
+that occurs inside of the function call.
+
+```c
+TRACE_CALL(my_helper_function());
+```
+Any failure (ASSERT/EXPECT) that happens in `my_helper_function()` will
+include a message like this:
+
+```
+<FileName>:<LineNumber>: my_helper_function() -- traced call
+```
+
 ## Build issues
 
 Some POSIX-specific functions are used in `testprefix.c`. If possible,
