@@ -71,27 +71,22 @@ void TP_report_call_traces(unsigned int level);
     } while (0)
 
 #define TP_BASE_COMPARISON(COND, ERR_MSG, ABORT, VAL_A, VAL_B, FMT, TYPE, ...) \
-    do {                                                                       \
-        if (!(COND)) {                                                         \
-            TP_context.result.status = TP_TEST_FAILED;                         \
-            TP_report_call_traces(0);                                          \
-            TP_send_message(0, __FILE__ ":" TP_LINE_STR ": " ERR_MSG);         \
-            if (strcmp(#TYPE, "uint64_t") == 0) {                              \
-                TP_send_message(1,                                             \
-                                "Values: " FMT " (0x%" PRIx64 "), " FMT        \
-                                " (0x%" PRIx64 ")",                            \
-                                (TYPE)VAL_A, (TYPE)VAL_A, (TYPE)VAL_B,         \
-                                (TYPE)VAL_B);                                  \
-            } else {                                                           \
-                TP_send_message(1, "Values: " FMT ", " FMT, (TYPE)VAL_A,       \
-                                (TYPE)VAL_B);                                  \
-            }                                                                  \
-            TP_send_message(1, "" __VA_ARGS__);                                \
-            if (ABORT) {                                                       \
-                longjmp(TP_context.env, 1);                                    \
-            }                                                                  \
+    if (!(COND)) {                                                             \
+        TP_context.result.status = TP_TEST_FAILED;                             \
+        TP_report_call_traces(0);                                              \
+        TP_send_message(0, __FILE__ ":" TP_LINE_STR ": " ERR_MSG);             \
+        if (strcmp(#TYPE, "uint64_t") == 0) {                                  \
+            TP_send_message(                                                   \
+                1, "Values: " FMT " (0x%" PRIx64 "), " FMT " (0x%" PRIx64 ")", \
+                VAL_A, VAL_A, VAL_B, VAL_B);                                   \
+        } else {                                                               \
+            TP_send_message(1, "Values: " FMT ", " FMT, VAL_A, VAL_B);         \
         }                                                                      \
-    } while (0)
+        TP_send_message(1, "" __VA_ARGS__);                                    \
+        if (ABORT) {                                                           \
+            longjmp(TP_context.env, 1);                                        \
+        }                                                                      \
+    }
 
 #define TP_BASE_MEM_COMPARISON(COND, ERR_MSG, ABORT, BUF_A, BUF_B, SIZE, ...)  \
     do {                                                                       \
@@ -135,204 +130,372 @@ void TP_report_call_traces(unsigned int level);
 
 // Unsigned integer comparison
 #define ASSERT_UINT_EQ(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) == (VAL2),                                       \
-                       #VAL1 " and " #VAL2 " were expected to be equal", true, \
-                       VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(TP_val1 == TP_val2,                                 \
+                           #VAL1 " and " #VAL2 " were expected to be equal",   \
+                           true, TP_val1, TP_val2, "%" PRIu64, uint64_t,       \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define EXPECT_UINT_EQ(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) == (VAL2),                                       \
-                       #VAL1 " and " #VAL2 " were expected to be equal",       \
-                       false, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(TP_val1 == TP_val2,                                 \
+                           #VAL1 " and " #VAL2 " were expected to be equal",   \
+                           false, TP_val1, TP_val2, "%" PRIu64, uint64_t,      \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define ASSERT_UINT_NE(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) != (VAL2),                                       \
-                       #VAL1 " and " #VAL2 " were expected to be different",   \
-                       true, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 != TP_val2,                                                \
+            #VAL1 " and " #VAL2 " were expected to be different", true,        \
+            TP_val1, TP_val2, "%" PRIu64, uint64_t, __VA_ARGS__);              \
+    } while (0)
 
 #define EXPECT_UINT_NE(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) != (VAL2),                                       \
-                       #VAL1 " and " #VAL2 " were expected to be different",   \
-                       false, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 != TP_val2,                                                \
+            #VAL1 " and " #VAL2 " were expected to be different", false,       \
+            TP_val1, TP_val2, "%" PRIu64, uint64_t, __VA_ARGS__);              \
+    } while (0)
 
 #define ASSERT_UINT_LT(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) < (VAL2),                                        \
-                       #VAL1 " was expected to be less than " #VAL2, true,     \
-                       VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 < TP_val2, #VAL1 " was expected to be less than " #VAL2,   \
+            true, TP_val1, TP_val2, "%" PRIu64, uint64_t, __VA_ARGS__);        \
+    } while (0)
 
 #define EXPECT_UINT_LT(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) < (VAL2),                                        \
-                       #VAL1 " was expected to be less than " #VAL2, false,    \
-                       VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 < TP_val2, #VAL1 " was expected to be less than " #VAL2,   \
+            false, TP_val1, TP_val2, "%" PRIu64, uint64_t, __VA_ARGS__);       \
+    } while (0)
 
 #define ASSERT_UINT_GT(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) > (VAL2),                                        \
-                       #VAL1 " was expected to be greater than " #VAL2, true,  \
-                       VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(TP_val1 > TP_val2,                                  \
+                           #VAL1 " was expected to be greater than " #VAL2,    \
+                           true, TP_val1, TP_val2, "%" PRIu64, uint64_t,       \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define EXPECT_UINT_GT(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) > (VAL2),                                        \
-                       #VAL1 " was expected to be greater than " #VAL2, false, \
-                       VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(TP_val1 > TP_val2,                                  \
+                           #VAL1 " was expected to be greater than " #VAL2,    \
+                           false, TP_val1, TP_val2, "%" PRIu64, uint64_t,      \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define ASSERT_UINT_LE(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) <= (VAL2),                                       \
-                       #VAL1                                                   \
-                       " was expected to be less than or equal to " #VAL2,     \
-                       true, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 <= TP_val2,                                                \
+            #VAL1 " was expected to be less than or equal to " #VAL2, true,    \
+            TP_val1, TP_val2, "%" PRIu64, uint64_t, __VA_ARGS__);              \
+    } while (0)
 
 #define EXPECT_UINT_LE(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) <= (VAL2),                                       \
-                       #VAL1                                                   \
-                       " was expected to be less than or equal to " #VAL2,     \
-                       false, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 <= TP_val2,                                                \
+            #VAL1 " was expected to be less than or equal to " #VAL2, false,   \
+            TP_val1, TP_val2, "%" PRIu64, uint64_t, __VA_ARGS__);              \
+    } while (0)
 
 #define ASSERT_UINT_GE(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) >= (VAL2),                                       \
-                       #VAL1                                                   \
-                       " was expected to be greater than or equal to " #VAL2,  \
-                       true, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 >= TP_val2,                                                \
+            #VAL1 " was expected to be greater than or equal to " #VAL2, true, \
+            TP_val1, TP_val2, "%" PRIu64, uint64_t, __VA_ARGS__);              \
+    } while (0)
 
 #define EXPECT_UINT_GE(VAL1, VAL2, ...)                                        \
-    TP_BASE_COMPARISON((VAL1) >= (VAL2),                                       \
-                       #VAL1                                                   \
-                       " was expected to be greater than or equal to " #VAL2,  \
-                       false, VAL1, VAL2, "%" PRIu64, uint64_t, __VA_ARGS__)
+    do {                                                                       \
+        uint64_t TP_val1 = (uint64_t)(VAL1);                                   \
+        uint64_t TP_val2 = (uint64_t)(VAL2);                                   \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 >= TP_val2,                                                \
+            #VAL1 " was expected to be greater than or equal to " #VAL2,       \
+            false, TP_val1, TP_val2, "%" PRIu64, uint64_t, __VA_ARGS__);       \
+    } while (0)
 
 // Signed integer comparison
 #define ASSERT_INT_EQ(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) == (VAL2),                                       \
-                       #VAL1 " and " #VAL2 " were expected to be equal", true, \
-                       VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(TP_val1 == TP_val2,                                 \
+                           #VAL1 " and " #VAL2 " were expected to be equal",   \
+                           true, TP_val1, TP_val2, "%" PRIi64, int64_t,        \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define EXPECT_INT_EQ(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) == (VAL2),                                       \
-                       #VAL1 " and " #VAL2 " were expected to be equal",       \
-                       false, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(TP_val1 == TP_val2,                                 \
+                           #VAL1 " and " #VAL2 " were expected to be equal",   \
+                           false, TP_val1, TP_val2, "%" PRIi64, int64_t,       \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define ASSERT_INT_NE(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) != (VAL2),                                       \
-                       #VAL1 " and " #VAL2 " were expected to be different",   \
-                       true, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 != TP_val2,                                                \
+            #VAL1 " and " #VAL2 " were expected to be different", true,        \
+            TP_val1, TP_val2, "%" PRIi64, int64_t, __VA_ARGS__);               \
+    } while (0)
 
 #define EXPECT_INT_NE(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) != (VAL2),                                       \
-                       #VAL1 " and " #VAL2 " were expected to be different",   \
-                       false, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 != TP_val2,                                                \
+            #VAL1 " and " #VAL2 " were expected to be different", false,       \
+            TP_val1, TP_val2, "%" PRIi64, int64_t, __VA_ARGS__);               \
+    } while (0)
 
 #define ASSERT_INT_LT(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) < (VAL2),                                        \
-                       #VAL1 " was expected to be less than " #VAL2, true,     \
-                       VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 < TP_val2, #VAL1 " was expected to be less than " #VAL2,   \
+            true, TP_val1, TP_val2, "%" PRIi64, int64_t, __VA_ARGS__);         \
+    } while (0)
 
 #define EXPECT_INT_LT(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) < (VAL2),                                        \
-                       #VAL1 " was expected to be less than " #VAL2, false,    \
-                       VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 < TP_val2, #VAL1 " was expected to be less than " #VAL2,   \
+            false, TP_val1, TP_val2, "%" PRIi64, int64_t, __VA_ARGS__);        \
+    } while (0)
 
 #define ASSERT_INT_GT(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) > (VAL2),                                        \
-                       #VAL1 " was expected to be greater than " #VAL2, true,  \
-                       VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(TP_val1 > TP_val2,                                  \
+                           #VAL1 " was expected to be greater than " #VAL2,    \
+                           true, TP_val1, TP_val2, "%" PRIi64, int64_t,        \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define EXPECT_INT_GT(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) > (VAL2),                                        \
-                       #VAL1 " was expected to be greater than " #VAL2, false, \
-                       VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(TP_val1 > TP_val2,                                  \
+                           #VAL1 " was expected to be greater than " #VAL2,    \
+                           false, TP_val1, TP_val2, "%" PRIi64, int64_t,       \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define ASSERT_INT_LE(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) <= (VAL2),                                       \
-                       #VAL1                                                   \
-                       " was expected to be less than or equal to " #VAL2,     \
-                       true, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 <= TP_val2,                                                \
+            #VAL1 " was expected to be less than or equal to " #VAL2, true,    \
+            TP_val1, TP_val2, "%" PRIi64, int64_t, __VA_ARGS__);               \
+    } while (0)
 
 #define EXPECT_INT_LE(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) <= (VAL2),                                       \
-                       #VAL1                                                   \
-                       " was expected to be less than or equal to " #VAL2,     \
-                       false, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 <= TP_val2,                                                \
+            #VAL1 " was expected to be less than or equal to " #VAL2, false,   \
+            TP_val1, TP_val2, "%" PRIi64, int64_t, __VA_ARGS__);               \
+    } while (0)
 
 #define ASSERT_INT_GE(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) >= (VAL2),                                       \
-                       #VAL1                                                   \
-                       " was expected to be greater than or equal to " #VAL2,  \
-                       true, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 >= TP_val2,                                                \
+            #VAL1 " was expected to be greater than or equal to " #VAL2, true, \
+            TP_val1, TP_val2, "%" PRIi64, int64_t, __VA_ARGS__);               \
+    } while (0)
 
 #define EXPECT_INT_GE(VAL1, VAL2, ...)                                         \
-    TP_BASE_COMPARISON((VAL1) >= (VAL2),                                       \
-                       #VAL1                                                   \
-                       " was expected to be greater than or equal to " #VAL2,  \
-                       false, VAL1, VAL2, "%" PRIi64, int64_t, __VA_ARGS__)
+    do {                                                                       \
+        int64_t TP_val1 = (int64_t)(VAL1);                                     \
+        int64_t TP_val2 = (int64_t)(VAL2);                                     \
+        TP_BASE_COMPARISON(                                                    \
+            TP_val1 >= TP_val2,                                                \
+            #VAL1 " was expected to be greater than or equal to " #VAL2,       \
+            false, TP_val1, TP_val2, "%" PRIi64, int64_t, __VA_ARGS__);        \
+    } while (0)
 
 // Pointer comparison
 #define ASSERT_PTR_EQ(PTR1, PTR2, ...)                                         \
-    TP_BASE_COMPARISON((PTR1) == (PTR2),                                       \
-                       #PTR1 " and " #PTR2 " were expected to be equal", true, \
-                       PTR1, PTR2, "%p", void *, __VA_ARGS__)
+    do {                                                                       \
+        void *TP_ptr1 = (void *)(PTR1);                                        \
+        void *TP_ptr2 = (void *)(PTR2);                                        \
+        TP_BASE_COMPARISON(TP_ptr1 == TP_ptr2,                                 \
+                           #PTR1 " and " #PTR2 " were expected to be equal",   \
+                           true, TP_ptr1, TP_ptr2, "%p", void *, __VA_ARGS__); \
+    } while (0)
 
 #define EXPECT_PTR_EQ(PTR1, PTR2, ...)                                         \
-    TP_BASE_COMPARISON((PTR1) == (PTR2),                                       \
-                       #PTR1 " and " #PTR2 " were expected to be equal",       \
-                       false, PTR1, PTR2, "%p", void *, __VA_ARGS__)
+    do {                                                                       \
+        void *TP_ptr1 = (void *)(PTR1);                                        \
+        void *TP_ptr2 = (void *)(PTR2);                                        \
+        TP_BASE_COMPARISON(TP_ptr1 == TP_ptr2,                                 \
+                           #PTR1 " and " #PTR2 " were expected to be equal",   \
+                           false, TP_ptr1, TP_ptr2, "%p", void *,              \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define ASSERT_PTR_NE(PTR1, PTR2, ...)                                         \
-    TP_BASE_COMPARISON((PTR1) != (PTR2),                                       \
-                       #PTR1 " and " #PTR2 " were expected to be different",   \
-                       true, PTR1, PTR2, "%p", void *, __VA_ARGS__)
+    do {                                                                       \
+        void *TP_ptr1 = (void *)(PTR1);                                        \
+        void *TP_ptr2 = (void *)(PTR2);                                        \
+        TP_BASE_COMPARISON(TP_ptr1 != TP_ptr2,                                 \
+                           #PTR1 " and " #PTR2                                 \
+                                 " were expected to be different",             \
+                           true, TP_ptr1, TP_ptr2, "%p", void *, __VA_ARGS__); \
+    } while (0)
 
 #define EXPECT_PTR_NE(PTR1, PTR2, ...)                                         \
-    TP_BASE_COMPARISON((PTR1) != (PTR2),                                       \
-                       #PTR1 " and " #PTR2 " were expected to be different",   \
-                       false, PTR1, PTR2, "%p", void *, __VA_ARGS__)
+    do {                                                                       \
+        void *TP_ptr1 = (void *)(PTR1);                                        \
+        void *TP_ptr2 = (void *)(PTR2);                                        \
+        TP_BASE_COMPARISON(                                                    \
+            TP_ptr1 != TP_ptr2,                                                \
+            #PTR1 " and " #PTR2 " were expected to be different", false,       \
+            TP_ptr1, TP_ptr2, "%p", void *, __VA_ARGS__);                      \
+    } while (0)
 
 // String comparison
 #define ASSERT_STR_EQ(STR1, STR2, ...)                                         \
-    TP_BASE_COMPARISON(STR1 != NULL && STR2 != NULL &&                         \
-                           strcmp(STR1, STR2) == 0,                            \
-                       #STR1 " and " #STR2 " were expected to be equal", true, \
-                       STR1, STR2, "'%s'", const char *, __VA_ARGS__)
+    do {                                                                       \
+        const char *TP_str1 = (const char *)STR1;                              \
+        const char *TP_str2 = (const char *)STR2;                              \
+        TP_BASE_COMPARISON(TP_str1 != NULL && TP_str2 != NULL &&               \
+                               strcmp(TP_str1, TP_str2) == 0,                  \
+                           #STR1 " and " #STR2 " were expected to be equal",   \
+                           true, TP_str1, TP_str2, "'%s'", const char *,       \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define EXPECT_STR_EQ(STR1, STR2, ...)                                         \
-    TP_BASE_COMPARISON(STR1 != NULL && STR2 != NULL &&                         \
-                           strcmp(STR1, STR2) == 0,                            \
-                       #STR1 " and " #STR2 " were expected to be equal",       \
-                       false, STR1, STR2, "'%s'", const char *, __VA_ARGS__)
+    do {                                                                       \
+        const char *TP_str1 = (const char *)STR1;                              \
+        const char *TP_str2 = (const char *)STR2;                              \
+        TP_BASE_COMPARISON(TP_str1 != NULL && TP_str2 != NULL &&               \
+                               strcmp(TP_str1, TP_str2) == 0,                  \
+                           #STR1 " and " #STR2 " were expected to be equal",   \
+                           false, TP_str1, TP_str2, "'%s'", const char *,      \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define ASSERT_STR_NE(STR1, STR2, ...)                                         \
-    TP_BASE_COMPARISON(STR1 != NULL && STR2 != NULL &&                         \
-                           strcmp(STR1, STR2) != 0,                            \
-                       #STR1 " and " #STR2 " were expected to be different",   \
-                       true, STR1, STR2, "'%s'", const char *, __VA_ARGS__)
+    do {                                                                       \
+        const char *TP_str1 = (const char *)STR1;                              \
+        const char *TP_str2 = (const char *)STR2;                              \
+        TP_BASE_COMPARISON(TP_str1 != NULL && TP_str2 != NULL &&               \
+                               strcmp(TP_str1, TP_str2) != 0,                  \
+                           #STR1 " and " #STR2 " were expected to be equal",   \
+                           true, TP_str1, TP_str2, "'%s'", const char *,       \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 #define EXPECT_STR_NE(STR1, STR2, ...)                                         \
-    TP_BASE_COMPARISON(STR1 != NULL && STR2 != NULL &&                         \
-                           strcmp(STR1, STR2) != 0,                            \
-                       #STR1 " and " #STR2 " were expected to be different",   \
-                       false, STR1, STR2, "'%s'", const char *, __VA_ARGS__)
+    do {                                                                       \
+        const char *TP_str1 = (const char *)STR1;                              \
+        const char *TP_str2 = (const char *)STR2;                              \
+        TP_BASE_COMPARISON(TP_str1 != NULL && TP_str2 != NULL &&               \
+                               strcmp(TP_str1, TP_str2) != 0,                  \
+                           #STR1 " and " #STR2 " were expected to be equal",   \
+                           false, TP_str1, TP_str2, "'%s'", const char *,      \
+                           __VA_ARGS__);                                       \
+    } while (0)
 
 // Memory region comparison
 #define ASSERT_MEM_EQ(PTR1, PTR2, SIZE, ...)                                   \
-    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) == 0,                      \
-                           #PTR1 " and " #PTR2                                 \
-                                 " were expected to contain the same data",    \
-                           true, PTR1, PTR2, SIZE, __VA_ARGS__)
+    do {                                                                       \
+        void *TP_ptr1 = (void *)(PTR1);                                        \
+        void *TP_ptr2 = (void *)(PTR2);                                        \
+        size_t TP_size = (size_t)SIZE;                                         \
+        TP_BASE_MEM_COMPARISON(                                                \
+            memcmp(TP_ptr1, TP_ptr2, TP_size) == 0,                            \
+            #PTR1 " and " #PTR2 " were expected to contain the same data",     \
+            true, TP_ptr1, TP_ptr2, TP_size, __VA_ARGS__);                     \
+    } while (0)
 
 #define EXPECT_MEM_EQ(PTR1, PTR2, SIZE, ...)                                   \
-    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) == 0,                      \
-                           #PTR1 " and " #PTR2                                 \
-                                 " were expected to contain the same data",    \
-                           false, PTR1, PTR2, SIZE, __VA_ARGS__)
+    do {                                                                       \
+        void *TP_ptr1 = (void *)(PTR1);                                        \
+        void *TP_ptr2 = (void *)(PTR2);                                        \
+        size_t TP_size = (size_t)SIZE;                                         \
+        TP_BASE_MEM_COMPARISON(                                                \
+            memcmp(TP_ptr1, TP_ptr2, TP_size) == 0,                            \
+            #PTR1 " and " #PTR2 " were expected to contain the same data",     \
+            false, TP_ptr1, TP_ptr2, TP_size, __VA_ARGS__);                    \
+    } while (0)
 
 #define ASSERT_MEM_NE(PTR1, PTR2, SIZE, ...)                                   \
-    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) != 0,                      \
-                           #PTR1 " and " #PTR2                                 \
-                                 " were expected to contain different data",   \
-                           true, PTR1, PTR2, SIZE, __VA_ARGS__)
+    do {                                                                       \
+        void *TP_ptr1 = (void *)(PTR1);                                        \
+        void *TP_ptr2 = (void *)(PTR2);                                        \
+        size_t TP_size = (size_t)SIZE;                                         \
+        TP_BASE_MEM_COMPARISON(                                                \
+            memcmp(TP_ptr1, TP_ptr2, TP_size) != 0,                            \
+            #PTR1 " and " #PTR2 " were expected to contain the same data",     \
+            true, TP_ptr1, TP_ptr2, TP_size, __VA_ARGS__);                     \
+    } while (0)
 
 #define EXPECT_MEM_NE(PTR1, PTR2, SIZE, ...)                                   \
-    TP_BASE_MEM_COMPARISON(memcmp(PTR1, PTR2, SIZE) != 0,                      \
-                           #PTR1 " and " #PTR2                                 \
-                                 " were expected to contain different data",   \
-                           false, PTR1, PTR2, SIZE, __VA_ARGS__)
+    do {                                                                       \
+        void *TP_ptr1 = (void *)(PTR1);                                        \
+        void *TP_ptr2 = (void *)(PTR2);                                        \
+        size_t TP_size = (size_t)SIZE;                                         \
+        TP_BASE_MEM_COMPARISON(                                                \
+            memcmp(TP_ptr1, TP_ptr2, TP_size) != 0,                            \
+            #PTR1 " and " #PTR2 " were expected to contain the same data",     \
+            false, TP_ptr1, TP_ptr2, TP_size, __VA_ARGS__);                    \
+    } while (0)
+
 // .--------------.
 // | Other macros |
 // '--------------'
