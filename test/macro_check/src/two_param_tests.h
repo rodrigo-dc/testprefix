@@ -9,6 +9,8 @@
 //             to fail. Ex.: #define ERROR_VALUE false
 //
 
+#include <assert.h>
+
 #define TWO_PARAM_MACRO_TEST_SET(MACRO, PARAM1, PARAM2_SUCCESS,                \
                                  PARAM2_FAILURE, VAR_TYPE)                     \
     /* A successful check does not fail the test */                            \
@@ -54,4 +56,22 @@
         MACRO(PARAM1, PARAM2_SUCCESS, "##unexpected message##");               \
         MACRO(PARAM1, PARAM2_SUCCESS, "##unexpected message##");               \
         MACRO(PARAM1, PARAM2_SUCCESS, "##unexpected message##");               \
+    }                                                                          \
+    /* The macro works with arguments that have side effects */                \
+    void test_err1_msg1_##MACRO##_side_effect_arguments()                      \
+    {                                                                          \
+        int i = 0;                                                             \
+        int j = 0;                                                             \
+        MACRO((i++, PARAM1), (j++, PARAM2_FAILURE), "##expected message##");   \
+        assert(i == 1);                                                        \
+        assert(j == 1);                                                        \
+    }                                                                          \
+    /* The macro works with arguments that have side effects */                \
+    void test_err0_msg0_##MACRO##_side_effect_arguments()                      \
+    {                                                                          \
+        int i = 0;                                                             \
+        int j = 0;                                                             \
+        MACRO((i++, PARAM1), (j++, PARAM2_SUCCESS), "##unexpected message##"); \
+        assert(i == 1);                                                        \
+        assert(j == 1);                                                        \
     }

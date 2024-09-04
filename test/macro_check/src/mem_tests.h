@@ -1,8 +1,9 @@
 // Copyright 2021-2024 Rodrigo Dias Correa. See LICENSE.
 
+#include <assert.h>
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 
-// Standard set of tests for mactos that check the content of memory buffers,
+// Standard set of tests for macros that check the content of memory buffers,
 // such as ASSERT_MEM_EQ, EXPECT_MEM_EQ, ASSERT_MEM_NE and EXPECT_MEM_NE.
 
 #define BASIC_MEM_MACRO_TEST_SET(MACRO, BUF1, BUF2_SUCCESS, BUF2_FAILURE)      \
@@ -41,6 +42,28 @@
         MACRO(BUF1, BUF2_SUCCESS, size, "##unexpected message##");             \
         MACRO(BUF1, BUF2_SUCCESS, size, "##unexpected message##");             \
         MACRO(BUF1, BUF2_SUCCESS, size, "##unexpected message##");             \
+    }                                                                          \
+    /* The macro works with arguments that have side effects */                \
+    void test_err1_msg1_##MACRO##_side_effect_arguments()                      \
+    {                                                                          \
+        int i = 0, j = 0, k = 0;                                               \
+        size_t size = MIN(sizeof(BUF1), sizeof(BUF2_SUCCESS));                 \
+        MACRO((i++, BUF1), (j++, BUF2_FAILURE), (k++, size),                   \
+              "##expected message##");                                         \
+        assert(i == 1);                                                        \
+        assert(j == 1);                                                        \
+        assert(k == 1);                                                        \
+    }                                                                          \
+    /* The macro works with arguments that have side effects */                \
+    void test_err0_msg0_##MACRO##_side_effect_arguments()                      \
+    {                                                                          \
+        int i = 0, j = 0, k = 0;                                               \
+        size_t size = MIN(sizeof(BUF1), sizeof(BUF2_SUCCESS));                 \
+        MACRO((i++, BUF1), (j++, BUF2_SUCCESS), (k++, size),                   \
+              "##unexpected message##");                                       \
+        assert(i == 1);                                                        \
+        assert(j == 1);                                                        \
+        assert(k == 1);                                                        \
     }
 
 // Set of tests that provide the same buffer (BUF)
