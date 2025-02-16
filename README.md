@@ -30,7 +30,7 @@ gcc testprefix.c test.c something.c -o test
 
 ## Demo
 
-![demo]()
+![demo](https://ro.drigo.nl/testprefix/images/demo.gif)
 
 * Functions with names starting with `test_` are automatically executed
   as test functions;
