@@ -37,7 +37,7 @@ gcc testprefix.c test.c something.c -o test
 * Console or TAP report can be generated.
 
 
-[Documentation](ro.drigo.nl/testprefix)
+[Documentation](https://ro.drigo.nl/testprefix)
 
 ## Limitations
 
