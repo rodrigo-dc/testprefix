@@ -5,7 +5,8 @@ Checks: "-*,\
  clang-analyzer-*,\
  misc-*,\
  -clang-analyzer-optin.performance.Padding,\
- -bugprone-easily-swappable-parameters"
+ -bugprone-easily-swappable-parameters,\
+ -misc-include-cleaner"
 FormatStyle:     Linux
 WarningsAsErrors: "*"
 ...

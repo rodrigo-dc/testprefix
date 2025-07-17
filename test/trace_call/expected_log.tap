@@ -1,0 +1,43 @@
+TAP version 13
+1..4
+not ok 1 test_fail_call_trace_expect
+  ---
+  message: '
+  test_call_trace.c:39: c1() -- traced call
+  test_call_trace.c:32: c2() -- traced call
+  test_call_trace.c:31: "one" and "two" were expected to be equal
+    Values: `one`, `two`
+  test_call_trace.c:40: d1() -- traced call
+  test_call_trace.c:35: d2() -- t
+  '
+  ...
+not ok 2 test_fail_call_trace_not_truncated
+  ---
+  message: '
+  test_call_trace.c:16: a2() -- traced call
+  test_call_trace.c:11: a3() -- traced call
+  test_call_trace.c:10: a4() -- traced call
+  test_call_trace.c:9: a5() -- traced call
+  test_call_trace.c:8: a6() -- traced call
+  test_call_trace.c:7: 2 and 1 were ex
+  '
+  ...
+not ok 3 test_fail_call_trace_truncated
+  ---
+  message: '
+  test_call_trace.c:14: a1() -- traced call
+  test_call_trace.c:12: a2() -- traced call
+  test_call_trace.c:11: a3() -- traced call
+  test_call_trace.c:10: a4() -- traced call
+  test_call_trace.c:9: a5() -- traced call
+  --- Truncated ---
+  test_call_trace
+  '
+  ...
+not ok 4 test_fail_call_trace_unroll
+  ---
+  message: '
+  test_call_trace.c:28: false was expected to be TRUE
+    No call traces should be visible
+  '
+  ...

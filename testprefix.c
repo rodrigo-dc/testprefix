@@ -872,7 +872,7 @@ static int run_tests(int test_count, struct test_info *tests)
         TP_context.fail_handler_arg = NULL;
         TP_context.call_traces_index = 0;
 
-        clock_gettime(CLOCK_REALTIME, &TP_context.result.begin);
+        (void)clock_gettime(CLOCK_REALTIME, &TP_context.result.begin);
         ret = setjmp(TP_context.env);
         if (ret == 0) {
             call_test_begin_cb(i, tests[i].name);
@@ -883,7 +883,7 @@ static int run_tests(int test_count, struct test_info *tests)
             TP_context.fail_handler(TP_context.fail_handler_arg);
             ret_code = -1;
         }
-        clock_gettime(CLOCK_REALTIME, &TP_context.result.end);
+        (void)clock_gettime(CLOCK_REALTIME, &TP_context.result.end);
         call_test_end_cb(i, tests[i].name, &TP_context.result);
     }
     call_finish_cb();
@@ -945,7 +945,7 @@ int main(int argc, char *argv[])
 {
     // testprefix output is not buffered. Disable stdout buffering to keep the
     // output of the code under test in sync with testprefix's.
-    setbuf(stdout, NULL);
+    (void)setvbuf(stdout, NULL, _IONBF, 0);
 
     struct cli_args args;
     int ret = parse_args(argc, argv, &args);
